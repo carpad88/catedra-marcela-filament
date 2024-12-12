@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use Filament\Forms;
+use Filament\Http\Responses\Auth\Contracts\LoginResponse;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\ServiceProvider;
 
@@ -13,7 +14,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->bind(LoginResponse::class, \App\Http\Responses\LoginResponse::class);
     }
 
     /**

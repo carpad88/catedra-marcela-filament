@@ -23,7 +23,6 @@ class AuditFieldsSchemaServiceProvider extends ServiceProvider
         Blueprint::macro('auditFields', function () {
             $this->foreignId('created_by')->nullable()->constrained('users');
             $this->foreignId('updated_by')->nullable()->constrained('users');
-            $this->foreignId('deleted_by')->nullable()->constrained('users');
         });
     }
 }

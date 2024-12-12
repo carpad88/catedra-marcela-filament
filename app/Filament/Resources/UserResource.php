@@ -83,7 +83,7 @@ class UserResource extends Resource
                 Tables\Columns\TextColumn::make('name')
                     ->label('Nombre'),
                 Tables\Columns\TextColumn::make('email'),
-                Tables\Columns\TextColumn::make('last_login')
+                Tables\Columns\TextColumn::make('last_login_at')
                     ->label('Último Acceso')
                     ->dateTime('d M Y H:i'),
             ])
