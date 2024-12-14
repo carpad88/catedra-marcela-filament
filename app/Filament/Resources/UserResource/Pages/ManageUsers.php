@@ -3,6 +3,8 @@
 namespace App\Filament\Resources\UserResource\Pages;
 
 use App\Filament\Resources\UserResource;
+use App\Models\User;
+use App\Notifications\WelcomeEmail;
 use Filament\Actions;
 use Filament\Resources\Pages\ManageRecords;
 
@@ -20,7 +22,14 @@ class ManageUsers extends ManageRecords
                     $data['password'] = str()->random(10);
 
                     return $data;
-                }),
+                })
+                ->after(fn ($record) => $this->sendWelcomeEmail($record)),
         ];
+    }
+
+    protected function sendWelcomeEmail(User $record): void
+    {
+        $notification = new WelcomeEmail($record);
+        $record->notify($notification);
     }
 }
