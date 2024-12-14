@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
@@ -18,7 +19,7 @@ return new class extends Migration
             $table->string('name')->virtualAs('CONCAT(first_name, " ", last_name)');
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
-            $table->string('password');
+            $table->string('password')->default(Hash::make(str()->random(8)));
             $table->string('code');
             $table->string('avatar')->nullable();
             $table->timestamp('last_login_at')->nullable();

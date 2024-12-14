@@ -53,6 +53,8 @@ class AdminPanelProvider extends PanelProvider
                 DisableBladeIconComponents::class,
                 DispatchServingFilamentEvent::class,
             ])
+            ->databaseNotifications()
+            ->databaseNotificationsPolling(false)
             ->plugins([
                 FilamentShieldPlugin::make(),
             ])

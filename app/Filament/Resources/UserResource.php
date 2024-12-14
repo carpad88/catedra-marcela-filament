@@ -42,6 +42,7 @@ class UserResource extends Resource
                 Components\TextInput::make('email')
                     ->email()
                     ->required()
+                    ->unique(ignoreRecord: true)
                     ->maxLength(255),
                 Components\TextInput::make('code')
                     ->label('Código de estudiante')
@@ -94,7 +95,13 @@ class UserResource extends Resource
                 Tables\Actions\EditAction::make()
                     ->modalWidth('xl')
                     ->iconButton()
-                    ->slideOver(),
+                    ->slideOver()
+                    ->mutateFormDataUsing(function (array $data): array {
+                        $data['first_name'] = str($data['first_name'])->title();
+                        $data['last_name'] = str($data['last_name'])->title();
+
+                        return $data;
+                    }),
                 Tables\Actions\DeleteAction::make()
                     ->iconButton(),
             ])

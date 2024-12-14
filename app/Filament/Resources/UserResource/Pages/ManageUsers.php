@@ -2,9 +2,9 @@
 
 namespace App\Filament\Resources\UserResource\Pages;
 
+use App\Actions\Auth\SendWelcomeEmail;
+use App\Filament\Imports\UserImporter;
 use App\Filament\Resources\UserResource;
-use App\Models\User;
-use App\Notifications\WelcomeEmail;
 use Filament\Actions;
 use Filament\Resources\Pages\ManageRecords;
 
@@ -19,17 +19,16 @@ class ManageUsers extends ManageRecords
                 ->modalWidth('xl')
                 ->slideOver()
                 ->mutateFormDataUsing(function (array $data): array {
-                    $data['password'] = str()->random(10);
+                    $data['first_name'] = str($data['first_name'])->title();
+                    $data['last_name'] = str($data['last_name'])->title();
 
                     return $data;
                 })
-                ->after(fn ($record) => $this->sendWelcomeEmail($record)),
+                ->after(fn ($record) => (new SendWelcomeEmail)->handle($record)),
+            Actions\ImportAction::make()
+                ->label('Importar usuarios')
+                ->modalHeading('Importación masiva de usuarios')
+                ->importer(UserImporter::class),
         ];
-    }
-
-    protected function sendWelcomeEmail(User $record): void
-    {
-        $notification = new WelcomeEmail($record);
-        $record->notify($notification);
     }
 }
