@@ -24,9 +24,6 @@ it('can render users page', function () {
 });
 
 test('unauthorized users cannot render users page', function () {
-    givePermissions('user', []);
-    User::factory(2)->create();
-
     test()->get(UserResource::getUrl())
         ->assertForbidden()
         ->assertSee('403');

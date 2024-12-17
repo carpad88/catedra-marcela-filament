@@ -28,7 +28,7 @@ return [
 
     'panel_user' => [
         'enabled' => true,
-        'name' => 'panel_user',
+        'name' => 'student',
     ],
 
     'permission_prefixes' => [
@@ -37,14 +37,14 @@ return [
             'view_any',
             'create',
             'update',
-            'restore',
-            'restore_any',
+            // 'restore',
+            // 'restore_any',
             'replicate',
             'reorder',
             'delete',
             'delete_any',
-            'force_delete',
-            'force_delete_any',
+            // 'force_delete',
+            // 'force_delete_any',
         ],
 
         'page' => 'page',

@@ -3,12 +3,14 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\UserResource\Pages;
+use App\Models\Group;
 use App\Models\User;
 use Filament\Forms\Components;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class UserResource extends Resource
 {
@@ -48,12 +50,18 @@ class UserResource extends Resource
                     ->label('Código de estudiante')
                     ->required()
                     ->maxLength(15),
-                Components\Select::make('group')
-                    ->dehydrated(false) // TODO: remove when groups are implemented
-                    ->options([
-                        'draft' => '2025A - vespertino',
-                        'reviewing' => '2025B - matutino',
-                    ]),
+                Components\Select::make('groups')
+                    ->label('Grupos')
+                    ->visibleOn('create')
+                    ->relationship(
+                        'groups',
+                        'title',
+                        modifyQueryUsing: fn (Builder $query, $operation) => $query->currentCycle()->owned()
+                    )
+                    ->getOptionLabelFromRecordUsing(fn (Group $record
+                    ) => "$record->year$record->cycle - $record->title")
+                    ->preload(fn (Builder $query, $operation) => $operation == 'create')
+                    ->optionsLimit(4),
 
                 Components\Fieldset::make('Roles')
                     ->visible(fn () => auth()->user()->can('create_role'))
@@ -73,17 +81,22 @@ class UserResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-            ->modifyQueryUsing(fn ($query) => auth()->user()->hasRole('super_admin')
-                ? $query
-                : $query->whereNotNull('email_verified_at')
-            )
+            ->defaultSort('id', 'desc')
             ->columns([
-                Tables\Columns\TextColumn::make('group')
-                    ->label('Ciclo')
-                    ->description('Group description'), // TODO: update group description
                 Tables\Columns\TextColumn::make('name')
-                    ->label('Nombre'),
-                Tables\Columns\TextColumn::make('email'),
+                    ->label('Nombre')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('roles.name')
+                    ->label('Rol')
+                    ->visible(fn () => auth()->user()->hasRole('super_admin'))
+                    ->badge(),
+                Tables\Columns\TextColumn::make('email')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('groups_count')
+                    ->counts('groups')
+                    ->label('Grupos')
+                    ->badge()
+                    ->alignCenter(),
                 Tables\Columns\TextColumn::make('last_login_at')
                     ->label('Último Acceso')
                     ->dateTime('d M Y H:i'),

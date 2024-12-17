@@ -71,6 +71,10 @@ class UserImporter extends Importer
     {
         $this->record->assignRole('student');
 
+        if ($this->options['groupID'] ?? false) {
+            $this->record->groups()->attach($this->options['groupID']);
+        }
+
         (new SendWelcomeEmail)->handle($this->record);
     }
 }
