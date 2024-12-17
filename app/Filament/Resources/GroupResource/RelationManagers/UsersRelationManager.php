@@ -9,6 +9,7 @@ use App\Models\User;
 use Filament\Forms;
 use Filament\Forms\Components;
 use Filament\Forms\Form;
+use Filament\Notifications\Notification;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -96,6 +97,18 @@ class UsersRelationManager extends RelationManager
                     ]),
             ])
             ->actions([
+                Tables\Actions\Action::make('resend-welcome-email')
+                    ->tooltip('Reenviar correo de activación')
+                    ->visible(fn (User $record) => ! $record->email_verified_at)
+                    ->icon('heroicon-o-envelope')
+                    ->iconButton()
+                    ->action(function (User $record) {
+                        (new SendWelcomeEmail)->handle($record);
+                        Notification::make()
+                            ->title('Correo de activación reenviado')
+                            ->success()
+                            ->send();
+                    }),
                 Tables\Actions\DetachAction::make()
                     ->iconButton(),
                 Tables\Actions\EditAction::make()
