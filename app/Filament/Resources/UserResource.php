@@ -53,6 +53,7 @@ class UserResource extends Resource
                 Components\Select::make('groups')
                     ->label('Grupos')
                     ->visibleOn('create')
+                    ->multiple()
                     ->relationship(
                         'groups',
                         'title',
@@ -61,7 +62,7 @@ class UserResource extends Resource
                     ->getOptionLabelFromRecordUsing(fn (Group $record
                     ) => "$record->year$record->cycle - $record->title")
                     ->preload(fn (Builder $query, $operation) => $operation == 'create')
-                    ->optionsLimit(4),
+                    ->optionsLimit(10),
 
                 Components\Fieldset::make('Roles')
                     ->visible(fn () => auth()->user()->can('create_role'))

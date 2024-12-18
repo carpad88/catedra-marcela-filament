@@ -24,7 +24,7 @@ class Group extends Model
 
     public function students(): BelongsToMany
     {
-        return $this->belongsToMany(User::class)
+        return $this->belongsToMany(User::class, 'group_user', 'group_id', 'user_id')
             ->whereHas('roles', fn ($query) => $query->where('name', 'student'));
     }
 
