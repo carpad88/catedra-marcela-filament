@@ -11,14 +11,18 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('groups', function (Blueprint $table) {
+        Schema::create('projects', function (Blueprint $table) {
             $table->id();
             $table->foreignId('owner_id')->constrained('users', 'id');
-            $table->integer('year');
-            $table->string('cycle', 1);
-            $table->string('period')->virtualAs('CONCAT(year, cycle)');
+            $table->string('cover');
             $table->string('title');
-            $table->enum('status', ['active', 'archived'])->default('active');
+            $table->text('description');
+            $table->text('goals');
+            $table->longText('activities');
+            $table->longText('conditions');
+            $table->timestamp('started_at');
+            $table->timestamp('finished_at');
+            $table->enum('status', ['active', 'archived']);
             $table->auditFields();
             $table->timestamps();
         });
@@ -29,6 +33,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('groups');
+        Schema::dropIfExists('projects');
     }
 };

@@ -2,8 +2,10 @@
 
 use App\Filament\Resources\GroupResource;
 use App\Filament\Resources\GroupResource\Pages\ManageGroups;
+use App\Filament\Resources\GroupResource\RelationManagers\ProjectsRelationManager;
 use App\Filament\Resources\GroupResource\RelationManagers\UsersRelationManager;
 use App\Models\Group;
+use App\Models\Project;
 use App\Models\User;
 
 use function Pest\Livewire\livewire;
@@ -166,4 +168,54 @@ it('can remove a user from a group', function () {
         ->assertTableActionExists('detach')
         ->callMountedTableAction()
         ->assertCanNotSeeTableRecords([$user]);
+});
+
+it('can render the projects relation manager', function () {
+    givePermissions('group', ['view']);
+
+    $group = Group::factory()
+        ->hasProjects(3, ['owner_id' => auth()->id()])
+        ->create(['owner_id' => auth()->id()]);
+
+    livewire(ProjectsRelationManager::class, [
+        'ownerRecord' => $group,
+        'pageClass' => GroupResource\Pages\ViewGroup::class,
+    ])
+        ->assertSuccessful()
+        ->assertTableActionExists('attach')
+        ->assertCountTableRecords(3)
+        ->assertCanSeeTableRecords($group->projects);
+});
+
+it('can attach a project to a group', function () {
+    givePermissions('group', ['view', 'update']);
+
+    $group = Group::factory()->create();
+    $item = Project::factory()->create();
+
+    livewire(ProjectsRelationManager::class, [
+        'ownerRecord' => $group,
+        'pageClass' => GroupResource\Pages\ViewGroup::class,
+    ])
+        ->assertTableActionExists('attach')
+        ->callTableAction('attach', data: ['recordId' => [$item->getRouteKey()]])
+        ->assertCanSeeTableRecords([$item]);
+});
+
+it('can remove a project from a group', function () {
+    givePermissions('group', ['view', 'update']);
+
+    $group = Group::factory()->create();
+    $item = Project::factory()->create();
+
+    $group->projects()->attach($item);
+
+    livewire(ProjectsRelationManager::class, [
+        'ownerRecord' => $group,
+        'pageClass' => GroupResource\Pages\ViewGroup::class,
+    ])
+        ->mountTableAction('detach', $item)
+        ->assertTableActionExists('detach')
+        ->callMountedTableAction()
+        ->assertCanNotSeeTableRecords([$item]);
 });

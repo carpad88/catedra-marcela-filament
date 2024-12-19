@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\Status;
 use App\Traits\CrudBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -11,6 +12,13 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 class Group extends Model
 {
     use CrudBy, HasFactory;
+
+    protected function casts(): array
+    {
+        return [
+            'status' => Status::class,
+        ];
+    }
 
     public function owner(): BelongsTo
     {
@@ -26,6 +34,11 @@ class Group extends Model
     {
         return $this->belongsToMany(User::class, 'group_user', 'group_id', 'user_id')
             ->whereHas('roles', fn ($query) => $query->where('name', 'student'));
+    }
+
+    public function projects(): BelongsToMany
+    {
+        return $this->belongsToMany(Project::class);
     }
 
     public function scopeCurrentCycle($query)

@@ -2,7 +2,9 @@
 
 namespace App\Filament\Resources;
 
+use App\Enums\Status;
 use App\Filament\Resources\GroupResource\Pages;
+use App\Filament\Resources\GroupResource\RelationManagers\ProjectsRelationManager;
 use App\Filament\Resources\GroupResource\RelationManagers\UsersRelationManager;
 use App\Models\Group;
 use Filament\Forms\Components;
@@ -67,21 +69,17 @@ class GroupResource extends Resource
                         'A' => 'primary',
                         'B' => 'warning'
                     }),
-                Tables\Columns\TextColumn::make('active')
+                Tables\Columns\TextColumn::make('status')
                     ->label('Estado')
-                    ->formatStateUsing(fn (string $state): string => $state === '1' ? 'Activo' : 'Archivado')
-                    ->badge()
-                    ->icon(fn (string $state): string => match ($state) {
-                        '1' => 'heroicon-m-check-badge',
-                        '0' => 'heroicon-o-archive-box'
-                    })
-                    ->color(fn (string $state): string => match ($state) {
-                        '1' => 'primary',
-                        '0' => 'gray'
-                    }),
+                    ->badge(Status::class),
                 Tables\Columns\TextColumn::make('owner.name')
                     ->label('Propietario')
                     ->visible(fn () => auth()->user()->hasRole('super_admin')),
+                Tables\Columns\TextColumn::make('projects_count')
+                    ->counts('projects')
+                    ->label('Proyectos')
+                    ->badge()
+                    ->alignCenter(),
                 Tables\Columns\TextColumn::make('students_count')
                     ->counts('students')
                     ->label('Estudiantes')
@@ -117,6 +115,7 @@ class GroupResource extends Resource
     {
         return [
             UsersRelationManager::class,
+            ProjectsRelationManager::class,
         ];
     }
 }
