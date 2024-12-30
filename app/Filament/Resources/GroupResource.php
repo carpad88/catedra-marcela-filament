@@ -30,16 +30,19 @@ class GroupResource extends Resource
             ->schema([
                 Components\TextInput::make('title')
                     ->label('Descripción')
+                    ->hiddenOn('view')
                     ->columnSpan(3)
                     ->required(),
                 Components\TextInput::make('year')
                     ->label('Año')
+                    ->hiddenOn('view')
                     ->default(date('Y'))
                     ->numeric()
                     ->length(4)
                     ->required(),
                 Components\ToggleButtons::make('cycle')
                     ->label('Ciclo')
+                    ->hiddenOn('view')
                     ->options([
                         'A' => 'A',
                         'B' => 'B',
@@ -114,8 +117,8 @@ class GroupResource extends Resource
     public static function getRelations(): array
     {
         return [
-            UsersRelationManager::class,
             ProjectsRelationManager::class,
+            UsersRelationManager::class,
         ];
     }
 }

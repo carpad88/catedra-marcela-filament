@@ -36,9 +36,6 @@ class ProjectsRelationManager extends RelationManager
     {
         return $table
             ->recordTitleAttribute('title')
-            ->recordUrl(
-                fn (Project $record): string => ProjectResource::getUrl('view', ['record' => $record]),
-            )
             ->columns([
                 Columns\TextColumn::make('title')
                     ->label('Título'),

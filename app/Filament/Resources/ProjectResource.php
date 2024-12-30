@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Enums\Status;
 use App\Filament\Resources\ProjectResource\Pages;
+use App\Filament\Resources\ProjectResource\RelationManagers\CriteriasRelationManager;
 use App\Models\Group;
 use App\Models\Project;
 use Filament\Forms\Components;
@@ -31,8 +32,9 @@ class ProjectResource extends Resource
         return $form
             ->columns(3)
             ->schema([
-                Components\Section::make()
+                Components\Section::make('Detalles')
                     ->columnSpan(1)
+                    ->collapsible()
                     ->schema([
                         Components\TextInput::make('title')
                             ->label('Título')
@@ -53,7 +55,9 @@ class ProjectResource extends Resource
                             ->relationship(
                                 'groups',
                                 'period',
-                                modifyQueryUsing: fn (Builder $query, $operation) => $query->currentCycle()->owned()
+                                modifyQueryUsing: fn (Builder $query, $operation) => $operation == 'create'
+                                    ? $query->owned()->where('status', Status::Active)
+                                    : $query->owned()
                             )
                             ->getOptionLabelFromRecordUsing(fn (Group $record) => "$record->period - $record->title")
                             ->preload(fn (Builder $query, $operation) => $operation == 'create')
@@ -63,25 +67,49 @@ class ProjectResource extends Resource
                             ->required(),
                     ]),
 
-                Components\Section::make()
+                Components\Group::make()
                     ->columnSpan(2)
                     ->schema([
-                        Components\MarkdownEditor::make('description')
-                            ->label('Descripción')
-                            ->disableToolbarButtons($disabledButtons)
-                            ->required(),
-                        Components\MarkdownEditor::make('goals')
-                            ->label('Objetivos')
-                            ->disableToolbarButtons($disabledButtons)
-                            ->required(),
-                        Components\MarkdownEditor::make('activities')
-                            ->label('Actividades')
-                            ->disableToolbarButtons($disabledButtons)
-                            ->required(),
-                        Components\MarkdownEditor::make('conditions')
-                            ->label('Condiciones')
-                            ->disableToolbarButtons($disabledButtons)
-                            ->required(),
+                        Components\Section::make('Descripción')
+                            ->compact()
+                            ->collapsible()
+                            ->collapsed(fn ($operation) => $operation == 'edit')
+                            ->schema([
+                                Components\MarkdownEditor::make('description')
+                                    ->hiddenLabel()
+                                    ->disableToolbarButtons($disabledButtons)
+                                    ->required(),
+                            ]),
+                        Components\Section::make('Objetivos')
+                            ->compact()
+                            ->collapsible()
+                            ->collapsed(fn ($operation) => $operation == 'edit')
+                            ->schema([
+                                Components\MarkdownEditor::make('goals')
+                                    ->hiddenLabel()
+                                    ->disableToolbarButtons($disabledButtons)
+                                    ->required(),
+                            ]),
+                        Components\Section::make('Actividades')
+                            ->compact()
+                            ->collapsible()
+                            ->collapsed(fn ($operation) => $operation == 'edit')
+                            ->schema([
+                                Components\MarkdownEditor::make('activities')
+                                    ->hiddenLabel()
+                                    ->disableToolbarButtons($disabledButtons)
+                                    ->required(),
+                            ]),
+                        Components\Section::make('Condiciones')
+                            ->compact()
+                            ->collapsible()
+                            ->collapsed(fn ($operation) => $operation == 'edit')
+                            ->schema([
+                                Components\MarkdownEditor::make('conditions')
+                                    ->hiddenLabel()
+                                    ->disableToolbarButtons($disabledButtons)
+                                    ->required(),
+                            ]),
                     ]),
 
             ]);
@@ -91,9 +119,7 @@ class ProjectResource extends Resource
     {
         return $table
             ->modifyQueryUsing(fn ($query) => $query->owned())
-            ->recordUrl(
-                fn (Project $record): string => static::getUrl('view', ['record' => $record]),
-            )
+            ->defaultSort('started_at', 'desc')
             ->columns([
                 Columns\TextColumn::make('status')
                     ->label('Estado')
@@ -137,7 +163,7 @@ class ProjectResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            CriteriasRelationManager::class,
         ];
     }
 
@@ -146,7 +172,6 @@ class ProjectResource extends Resource
         return [
             'index' => Pages\ListProjects::route('/'),
             'create' => Pages\CreateProject::route('/create'),
-            'view' => Pages\ViewProject::route('/{record}'),
             'edit' => Pages\EditProject::route('/{record}/edit'),
         ];
     }

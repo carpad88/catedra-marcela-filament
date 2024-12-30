@@ -5,6 +5,7 @@ namespace App\Filament\Resources\GroupResource\Pages;
 use App\Filament\Resources\GroupResource;
 use Filament\Actions;
 use Filament\Resources\Pages\ViewRecord;
+use Illuminate\Contracts\Support\Htmlable;
 
 class ViewGroup extends ViewRecord
 {
@@ -17,5 +18,10 @@ class ViewGroup extends ViewRecord
                 ->label('Editar Grupo')
                 ->modalWidth('2xl'),
         ];
+    }
+
+    public function getTitle(): string|Htmlable
+    {
+        return "{$this->getRecord()->title} - {$this->getRecord()->period}";
     }
 }
