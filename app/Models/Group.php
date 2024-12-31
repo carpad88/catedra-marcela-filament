@@ -61,4 +61,9 @@ class Group extends Model
             ->orderBy('year', 'desc')
             ->orderBy('cycle', 'desc');
     }
+
+    public function getFolderNameAttribute(): string
+    {
+        return $this->year.$this->cycle;
+    }
 }

@@ -45,4 +45,9 @@ class Project extends Model
 
         return $query->where('owner_id', auth()->id());
     }
+
+    public function getFolderNameAttribute(): string
+    {
+        return str($this->title)->slug()->studly();
+    }
 }

@@ -12,6 +12,7 @@
 */
 
 use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
 
 pest()
     ->extend(Tests\TestCase::class)
@@ -36,4 +37,13 @@ function givePermissions($resource, $permissions = null, $user = null): void
 
         $user->givePermissionTo($permissionSingle, $permissionAny);
     }
+}
+
+function assignRole($role, $user = null): void
+{
+    $role = Role::firstOrCreate(['name' => $role, 'guard_name' => 'web']);
+
+    $user = $user ?? auth()->user();
+
+    $user->assignRole($role);
 }

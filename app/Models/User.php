@@ -47,4 +47,9 @@ class User extends Authenticatable implements FilamentUser, HasName, MustVerifyE
             ->orderBy('year', 'desc')
             ->orderBy('cycle', 'desc');
     }
+
+    public function getFolderNameAttribute(): string
+    {
+        return $this->id.'-'.str("$this->first_name $this->last_name")->slug()->studly();
+    }
 }

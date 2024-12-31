@@ -86,7 +86,8 @@ class UserResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('name')
                     ->label('Nombre')
-                    ->searchable(),
+                    ->searchable()
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('roles.name')
                     ->label('Rol')
                     ->visible(fn () => auth()->user()->hasRole('super_admin'))
@@ -97,10 +98,12 @@ class UserResource extends Resource
                     ->counts('groups')
                     ->label('Grupos')
                     ->badge()
-                    ->alignCenter(),
+                    ->alignCenter()
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('last_login_at')
                     ->label('Último Acceso')
-                    ->dateTime('d M Y H:i'),
+                    ->dateTime('d M Y H:i')
+                    ->sortable(),
             ])
             ->filters([
                 //
