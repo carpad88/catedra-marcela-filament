@@ -16,9 +16,10 @@ return new class extends Migration
             $table->foreignId('project_id')->constrained();
             $table->foreignId('user_id')->constrained();
             $table->foreignId('group_id')->constrained();
+            $table->unsignedTinyInteger('score')->nullable();
             $table->string('folder');
-            $table->string('cover');
-            $table->json('images');
+            $table->string('cover')->nullable();
+            $table->json('images')->nullable();
             $table->enum('visibility', ['public', 'private', 'group'])->default('private');
             $table->auditFields();
             $table->timestamps();

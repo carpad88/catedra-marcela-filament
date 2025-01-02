@@ -34,6 +34,7 @@ class ProjectsRelationManager extends RelationManager
     {
         return $table
             ->recordTitleAttribute('title')
+            ->paginated(false)
             ->columns([
                 Columns\TextColumn::make('title')
                     ->label('Título'),

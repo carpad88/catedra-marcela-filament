@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Models\Criteria;
+use App\Models\Level;
 use App\Models\Project;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -26,5 +27,12 @@ class CriteriaFactory extends Factory
             'order' => $this->faker->numberBetween(1, 10),
             'project_id' => Project::factory(),
         ];
+    }
+
+    public function configure(): CriteriaFactory
+    {
+        return $this->afterCreating(function (Criteria $criteria) {
+            Level::factory()->count(3)->create(['criteria_id' => $criteria->id]);
+        });
     }
 }

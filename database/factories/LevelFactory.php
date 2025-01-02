@@ -24,7 +24,6 @@ class LevelFactory extends Factory
             'title' => $this->faker->sentence(4),
             'description' => $this->faker->text(),
             'score' => $this->faker->numberBetween(1, 10),
-            'order' => $this->faker->numberBetween(1, 10),
             'criteria_id' => Criteria::factory(),
         ];
     }

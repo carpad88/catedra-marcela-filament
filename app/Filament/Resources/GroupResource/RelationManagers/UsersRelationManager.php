@@ -42,6 +42,14 @@ class UsersRelationManager extends RelationManager
                 Tables\Columns\TextColumn::make('last_login_at')
                     ->label('Último Acceso')
                     ->dateTime('d M Y H:i'),
+                Tables\Columns\TextColumn::make('works_avg_score')
+                    ->label('Promedio')
+                    ->avg([
+                        'works' => fn (Builder $query) => $query->where('group_id', $this->getOwnerRecord()->id),
+                    ], 'score')
+                    ->formatStateUsing(fn ($state) => $state ? round($state) : null)
+                    ->badge()
+                    ->alignCenter(),
             ])
             ->headerActions([
                 Tables\Actions\CreateAction::make()

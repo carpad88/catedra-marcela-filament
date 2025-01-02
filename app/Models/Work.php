@@ -36,8 +36,14 @@ class Work extends Model
         return $this->belongsTo(Group::class);
     }
 
-    public function levels(): BelongsToMany
+    public function rubrics(): BelongsToMany
     {
-        return $this->belongsToMany(Level::class, 'scores', 'work_id', 'level_id');
+        return $this->belongsToMany(Criteria::class, 'rubrics', 'work_id', 'criteria_id')
+            ->withPivot('level_id');
+    }
+
+    public function scores()
+    {
+        return $this->hasMany(Rubric::class)->with('level:id,score');
     }
 }

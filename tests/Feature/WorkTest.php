@@ -3,6 +3,7 @@
 use App\Filament\Resources\WorkResource;
 use App\Models\User;
 use App\Models\Work;
+use Filament\Forms\Components\Repeater;
 
 use function Pest\Livewire\livewire;
 
@@ -18,7 +19,7 @@ test('can render works page', function () {
     test()->get(WorkResource::getUrl())->assertSuccessful();
 
     livewire(WorkResource\Pages\ListWorks::class)
-        ->assertTableColumnExists('group.period')
+        ->assertTableColumnExists('group.title')
         ->assertTableColumnExists('cover')
         ->assertTableColumnExists('project.title')
         ->assertTableColumnExists('user.name')
@@ -96,6 +97,8 @@ test('teachers can update any work from its groups', function () {
 
     test()->get(WorkResource::getUrl('edit', ['record' => $item]))->assertSuccessful();
 
+    $undoRepeaterFake = Repeater::fake();
+
     livewire(WorkResource\Pages\EditWork::class, [
         'record' => $item->getRouteKey(),
     ])
@@ -106,9 +109,17 @@ test('teachers can update any work from its groups', function () {
         ])->fillForm([
             'cover' => [$newItem->cover],
             'images' => $newItem->images,
+            'rubrics' => $item->project->criterias->map(fn ($rubric, $index) => [
+                'id' => $rubric->id,
+                'title' => $rubric->title,
+                'order' => $rubric->order,
+                'level_id' => $rubric->levels->first()->id,
+            ])->toArray(),
         ])
         ->call('save')
         ->assertHasNoFormErrors();
+
+    $undoRepeaterFake();
 
     expect($item->refresh())->cover->toBe($newItem->cover);
 });
@@ -121,6 +132,8 @@ test('users can update its works', function () {
 
     test()->get(WorkResource::getUrl('edit', ['record' => $item]))->assertSuccessful();
 
+    $undoRepeaterFake = Repeater::fake();
+
     livewire(WorkResource\Pages\EditWork::class, [
         'record' => $item->getRouteKey(),
     ])
@@ -131,9 +144,17 @@ test('users can update its works', function () {
         ])->fillForm([
             'cover' => [$newItem->cover],
             'images' => $newItem->images,
+            'rubrics' => $item->project->criterias->map(fn ($rubric, $index) => [
+                'id' => $rubric->id,
+                'title' => $rubric->title,
+                'order' => $rubric->order,
+                'level_id' => $rubric->levels->first()->id,
+            ])->toArray(),
         ])
         ->call('save')
         ->assertHasNoFormErrors();
+
+    $undoRepeaterFake();
 
     expect($item->refresh())->cover->toBe($newItem->cover);
 });

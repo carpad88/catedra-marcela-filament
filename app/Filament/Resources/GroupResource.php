@@ -6,6 +6,7 @@ use App\Enums\Status;
 use App\Filament\Resources\GroupResource\Pages;
 use App\Filament\Resources\GroupResource\RelationManagers\ProjectsRelationManager;
 use App\Filament\Resources\GroupResource\RelationManagers\UsersRelationManager;
+use App\Filament\Resources\GroupResource\RelationManagers\WorksRelationManager;
 use App\Models\Group;
 use Filament\Forms\Components;
 use Filament\Forms\Form;
@@ -88,6 +89,11 @@ class GroupResource extends Resource
                     ->label('Estudiantes')
                     ->badge()
                     ->alignCenter(),
+                Tables\Columns\TextColumn::make('works_count')
+                    ->counts('works')
+                    ->label('Trabajos')
+                    ->badge()
+                    ->alignCenter(),
             ])
             ->filters([
                 //
@@ -119,6 +125,7 @@ class GroupResource extends Resource
         return [
             ProjectsRelationManager::class,
             UsersRelationManager::class,
+            WorksRelationManager::class,
         ];
     }
 }

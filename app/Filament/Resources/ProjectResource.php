@@ -125,7 +125,13 @@ class ProjectResource extends Resource
                     ->label('Estado')
                     ->badge(Status::class),
                 Columns\TextColumn::make('title')
-                    ->label('Título'),
+                    ->label('Título')
+                    ->words(5)
+                    ->tooltip(function (Columns\TextColumn $column): ?string {
+                        $state = $column->getState();
+
+                        return str_word_count($state) <= $column->getWordLimit() ? null : $state;
+                    }),
                 Columns\TextColumn::make('started_at')
                     ->label('Comienzo')
                     ->dateTime('M j, Y'),
@@ -143,6 +149,12 @@ class ProjectResource extends Resource
                     ->counts('groups')
                     ->badge()
                     ->alignCenter(),
+                Columns\TextColumn::make('works_count')
+                    ->counts('works')
+                    ->label('Trabajos')
+                    ->badge()
+                    ->alignCenter()
+                    ->sortable(),
             ])
             ->filters([
                 //

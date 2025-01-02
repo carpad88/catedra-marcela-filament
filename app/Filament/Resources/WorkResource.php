@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\WorkResource\Pages;
 use App\Models\Group;
+use App\Models\Level;
 use App\Models\Work;
 use Filament\Forms\Components;
 use Filament\Forms\Form;
@@ -14,6 +15,7 @@ use Filament\Tables;
 use Filament\Tables\Columns;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use JaOcero\RadioDeck\Forms\Components\RadioDeck;
 
 class WorkResource extends Resource
 {
@@ -81,20 +83,71 @@ class WorkResource extends Resource
                             ->multiple()
                             ->panelLayout('grid'),
                     ]),
+
+                Components\Section::make('Criterios de evaluación')
+                    ->collapsible()
+                    ->hiddenOn('create')
+                    ->schema([
+                        Components\Repeater::make('rubrics')
+                            ->columnSpan('full')
+                            ->hiddenLabel()
+                            ->deletable(false)
+                            ->orderColumn(false)
+                            ->addable(false)
+                            ->itemLabel(fn (array $state): ?string => $state['title']
+                                ? "{$state['order']}. {$state['title']}"
+                                : null
+                            )
+                            ->required()
+                            ->schema([
+                                RadioDeck::make('level_id')
+                                    ->hiddenLabel()
+                                    ->required()
+                                    ->options(fn ($get) => Level::where('criteria_id', $get('./')['id'])
+                                        ->get()
+                                        ->mapWithKeys(fn ($item) => [$item->id => "{$item->title} ({$item->score} pt)"])
+                                    )
+                                    ->validationMessages([
+                                        'required' => 'Selecciona un nivel de desempeño.',
+                                    ])
+                                    ->descriptions(fn ($get) => Level::where('criteria_id', $get('./')['id'])
+                                        ->get()
+                                        ->mapWithKeys(fn ($item) => [$item->id => $item->description])
+                                    )
+                                    ->extraCardsAttributes([
+                                        'class' => 'flex-col justify-start items-start peer-checked:bg-primary-100',
+                                    ])
+                                    ->extraOptionsAttributes([
+                                        'class' => 'w-full flex flex-col items-start justify-start',
+                                    ])
+                                    ->extraDescriptionsAttributes([
+                                        'class' => 'leading-normal',
+                                    ])
+                                    ->color('primary')
+                                    ->columns(4),
+                            ]),
+                    ]),
             ]);
     }
 
     public static function table(Table $table): Table
     {
         return $table
-            ->defaultSort('id', 'desc')
+            ->defaultSort(fn (Builder $query) => $query
+                ->join('projects', 'works.project_id', '=', 'projects.id')
+                ->join('users', 'works.user_id', '=', 'users.id')
+                ->orderBy('projects.finished_at', 'desc')
+                ->orderBy('users.name')
+                ->select('works.*')
+            )
             ->columns([
                 Columns\ImageColumn::make('cover')
                     ->label('Portada')
                     ->height(100)
                     ->defaultImageUrl(url('images/placeholder.png')),
-                Columns\TextColumn::make('group.period')
+                Columns\TextColumn::make('group.title')
                     ->label('Grupo')
+                    ->description(fn (Work $record) => $record->group->period, 'above')
                     ->searchable()
                     ->sortable(),
                 Columns\TextColumn::make('project.title')
@@ -103,11 +156,16 @@ class WorkResource extends Resource
                     ->searchable(),
                 Columns\TextColumn::make('user.name')
                     ->label('Estudiante')
+                    ->searchable()
                     ->sortable(),
                 Columns\TextColumn::make('project.finished_at')
                     ->label('Entrega')
                     ->dateTime('M j, Y')
                     ->sortable(),
+                Columns\TextColumn::make('score')
+                    ->label('Calificación')
+                    ->alignCenter()
+                    ->badge(),
             ])
             ->filters([
                 //

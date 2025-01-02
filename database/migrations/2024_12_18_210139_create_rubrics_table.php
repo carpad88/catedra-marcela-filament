@@ -11,11 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('scores', function (Blueprint $table) {
+        Schema::create('rubrics', function (Blueprint $table) {
             $table->foreignId('work_id')->constrained();
-            $table->foreignId('level_id')->constrained();
+            $table->foreignId('criteria_id')->constrained();
+            $table->foreignId('level_id')->nullable()->constrained();
 
-            $table->primary(['work_id', 'level_id']);
+            $table->primary(['work_id', 'criteria_id']);
         });
     }
 

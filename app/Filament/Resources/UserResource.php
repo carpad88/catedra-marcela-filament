@@ -100,6 +100,12 @@ class UserResource extends Resource
                     ->badge()
                     ->alignCenter()
                     ->sortable(),
+                Tables\Columns\TextColumn::make('works_count')
+                    ->counts('works')
+                    ->label('Trabajos')
+                    ->badge()
+                    ->alignCenter()
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('last_login_at')
                     ->label('Último Acceso')
                     ->dateTime('d M Y H:i')
