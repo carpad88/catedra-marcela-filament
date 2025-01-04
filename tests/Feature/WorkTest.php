@@ -54,6 +54,9 @@ it('can create a new work', function () {
         ->assertHasNoFormErrors();
 
     test()->assertModelExists($item->fresh());
+
+    $item = Work::latest()->first();
+    test()->assertNotNull($item->folder);
 });
 
 test('unauthorized users cannot render create work page', function () {

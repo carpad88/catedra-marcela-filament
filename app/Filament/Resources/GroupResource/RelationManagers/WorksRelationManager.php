@@ -2,10 +2,9 @@
 
 namespace App\Filament\Resources\GroupResource\RelationManagers;
 
+use App\Enums\Status;
 use App\Filament\Resources\WorkResource;
 use App\Models\Group;
-use App\Models\Project;
-use App\Models\User;
 use App\Models\Work;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -98,24 +97,13 @@ class WorksRelationManager extends RelationManager
             ])
             ->headerActions([
                 Tables\Actions\CreateAction::make()
+                    ->visible(fn () => $this->getOwnerRecord()->status == Status::Active)
                     ->modalWidth('2xl')
-                    ->using(function ($data, $model) {
-                        $user = User::where('id', $data['user_id'])->first();
-                        $project = Project::where('id', $data['project_id'])->first();
-
-                        return $model::updateOrCreate([
-                            'group_id' => $this->getOwnerRecord()->id,
-                            'project_id' => $data['project_id'],
-                            'user_id' => $data['user_id'],
-                        ], [
-                            'folder' => "{$this->getOwnerRecord()->folderName}/$user->folderName/$project->folderName",
-                        ]);
-
-                    })
                     ->successRedirectUrl(fn (Work $record) => WorkResource::getUrl('edit', ['record' => $record])),
             ])
             ->actions([
-                Tables\Actions\Action::make('Rúbrica')
+                Tables\Actions\Action::make('rubric')
+                    ->label('Rúbrica')
                     ->icon('heroicon-o-adjustments-horizontal')
                     ->url(fn ($record) => WorkResource::getUrl('edit', ['record' => $record])),
             ])
@@ -123,6 +111,8 @@ class WorksRelationManager extends RelationManager
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
-            ]);
+            ])
+            ->emptyStateHeading('No se encontraron trabajos')
+            ->emptyStateDescription('Agrega trabajos a este grupo para que aparezcan aquí.');
     }
 }

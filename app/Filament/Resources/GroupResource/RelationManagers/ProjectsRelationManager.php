@@ -2,12 +2,16 @@
 
 namespace App\Filament\Resources\GroupResource\RelationManagers;
 
+use App\Enums\Status;
+use App\Models\Project;
 use Filament\Forms;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
 use Filament\Tables\Columns;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class ProjectsRelationManager extends RelationManager
 {
@@ -45,26 +49,49 @@ class ProjectsRelationManager extends RelationManager
                     ->label('Entrega')
                     ->dateTime('M j, Y'),
                 Columns\TextColumn::make('works_count')
-                    ->counts('works')
+                    ->counts([
+                        'works' => fn (Builder $query) => $query
+                            ->where('group_id', '=', $this->getOwnerRecord()->id),
+                    ])
                     ->label('Trabajos')
-                    ->badge(),
+                    ->badge()
+                    ->alignCenter(),
             ])
             ->filters([
                 //
             ])
             ->headerActions([
                 Tables\Actions\AttachAction::make()
-                    ->label('Vincular proyecto'),
-            ])
-            ->emptyStateActions([
-                Tables\Actions\AttachAction::make()
-                    ->label('Vincular proyecto'),
+                    ->label('Vincular proyecto')
+                    ->visible(fn () => $this->getOwnerRecord()->status == Status::Active)
+                    ->modalHeading('Vincular proyecto')
+                    ->preloadRecordSelect()
+                    ->recordSelectOptionsQuery(fn ($query) => $query->whereStatus('active'))
+                    ->recordSelect(fn (Select $select) => $select->searchable(false))
+                    ->after(function ($record) {
+                        $this->getOwnerRecord()
+                            ->students()
+                            ->whereNotNull('email_verified_at')
+                            ->get()
+                            ->map(function ($student) use ($record) {
+                                $student->works()
+                                    ->firstOrCreate([
+                                        'project_id' => $record->id,
+                                        'group_id' => $this->getOwnerRecord()->id,
+                                    ]);
+                                // TODO: create the project folder for each STUDENT
+                            });
+                    }),
             ])
             ->actions([
-                Tables\Actions\DetachAction::make(),
+                Tables\Actions\DetachAction::make()
+                    ->visible(fn () => $this->getOwnerRecord()->status == Status::Active)
+                    ->icon(null),
             ])
             ->bulkActions([
-
-            ]);
+                //
+            ])
+            ->emptyStateHeading('No se encontraron proyectos')
+            ->emptyStateDescription('Vincula proyectos a este grupo para que aparezcan aquí.');
     }
 }

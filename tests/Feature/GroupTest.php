@@ -4,6 +4,8 @@ use App\Filament\Resources\GroupResource;
 use App\Filament\Resources\GroupResource\Pages\ManageGroups;
 use App\Filament\Resources\GroupResource\RelationManagers\ProjectsRelationManager;
 use App\Filament\Resources\GroupResource\RelationManagers\UsersRelationManager;
+use App\Filament\Resources\GroupResource\RelationManagers\WorksRelationManager;
+use App\Filament\Resources\WorkResource;
 use App\Models\Group;
 use App\Models\Project;
 use App\Models\User;
@@ -140,7 +142,7 @@ it('can render the users relation manager', function () {
 it('can attach a user to a group', function () {
     givePermissions('group', ['view', 'update']);
 
-    $group = Group::factory()->create();
+    $group = Group::factory()->hasProjects(2)->create(['status' => 'active']);
     $user = User::factory()->create();
 
     livewire(UsersRelationManager::class, [
@@ -148,8 +150,10 @@ it('can attach a user to a group', function () {
         'pageClass' => GroupResource\Pages\ViewGroup::class,
     ])
         ->assertTableActionExists('attach')
-        ->callTableAction('attach', data: ['recordId' => [$user->getRouteKey()]])
+        ->callTableAction('attach', data: ['recordId' => $user->getRouteKey()])
         ->assertCanSeeTableRecords([$user]);
+
+    expect($user->works()->count())->toBe(2);
 });
 
 it('can remove a user from a group', function () {
@@ -190,16 +194,21 @@ it('can render the projects relation manager', function () {
 it('can attach a project to a group', function () {
     givePermissions('group', ['view', 'update']);
 
-    $group = Group::factory()->create();
-    $item = Project::factory()->create();
+    $group = Group::factory()
+        ->has(User::factory()->count(2)->students())
+        ->create(['owner_id' => auth()->id(), 'status' => 'active']);
+    $item = Project::factory()->create(['owner_id' => auth()->id()]);
 
     livewire(ProjectsRelationManager::class, [
         'ownerRecord' => $group,
         'pageClass' => GroupResource\Pages\ViewGroup::class,
     ])
         ->assertTableActionExists('attach')
-        ->callTableAction('attach', data: ['recordId' => [$item->getRouteKey()]])
+        ->callTableAction('attach', data: ['recordId' => $item->getRouteKey()])
         ->assertCanSeeTableRecords([$item]);
+
+    expect($group->projects()->count())->toBe(1)
+        ->and($group->works->count())->toBe(2);
 });
 
 it('can remove a project from a group', function () {
@@ -218,4 +227,50 @@ it('can remove a project from a group', function () {
         ->assertTableActionExists('detach')
         ->callMountedTableAction()
         ->assertCanNotSeeTableRecords([$item]);
+});
+
+it('can render works relation manager', function () {
+    givePermissions('group', ['view']);
+
+    $group = Group::factory()
+        ->hasProjects(3)
+        ->create(['owner_id' => auth()->id()]);
+    $user = User::factory()->create();
+
+    \App\Actions\Users\CreateUserWorks::handle($group, $user);
+
+    livewire(WorksRelationManager::class, [
+        'ownerRecord' => $group,
+        'pageClass' => GroupResource\Pages\ViewGroup::class,
+    ])
+        ->assertSuccessful()
+        ->assertTableActionExists('rubric')
+        ->assertCountTableRecords(3)
+        ->assertCanSeeTableRecords($group->works);
+});
+
+it('can create works in the relation manager', function () {
+    givePermissions('group', ['view', 'update']);
+    givePermissions('work', ['create']);
+
+    $group = Group::factory()
+        ->hasProjects(1, ['owner_id' => auth()->id()])
+        ->create(['owner_id' => auth()->id(), 'status' => 'active']);
+    $user = User::factory()->create();
+
+    $group->users()->attach($user);
+
+    livewire(WorksRelationManager::class, [
+        'ownerRecord' => $group,
+        'pageClass' => GroupResource\Pages\ViewGroup::class,
+    ])
+        ->assertTableActionExists('create')
+        ->callTableAction('create', data: [
+            'project_id' => $group->projects->first()->id,
+            'user_id' => $user->getRouteKey(),
+        ])
+        ->assertHasNoActionErrors()
+        ->assertRedirect(WorkResource::getUrl('edit', ['record' => $group->works->first()]));
+
+    expect($group->works()->count())->toBe(1);
 });

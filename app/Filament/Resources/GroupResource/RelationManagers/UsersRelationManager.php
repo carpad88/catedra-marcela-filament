@@ -3,6 +3,8 @@
 namespace App\Filament\Resources\GroupResource\RelationManagers;
 
 use App\Actions\Auth\SendWelcomeEmail;
+use App\Actions\Users\CreateUserWorks;
+use App\Enums\Status;
 use App\Filament\Imports\UserImporter;
 use App\Filament\Resources\UserResource;
 use App\Models\User;
@@ -41,7 +43,8 @@ class UsersRelationManager extends RelationManager
                 Tables\Columns\TextColumn::make('email'),
                 Tables\Columns\TextColumn::make('last_login_at')
                     ->label('Último Acceso')
-                    ->dateTime('d M Y H:i'),
+                    ->dateTime('d M Y H:i')
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('works_avg_score')
                     ->label('Promedio')
                     ->avg([
@@ -49,13 +52,16 @@ class UsersRelationManager extends RelationManager
                     ], 'score')
                     ->formatStateUsing(fn ($state) => $state ? round($state) : null)
                     ->badge()
-                    ->alignCenter(),
+                    ->alignCenter()
+                    ->sortable(),
             ])
             ->headerActions([
                 Tables\Actions\CreateAction::make()
-                    ->label('Crear Alumno')
+                    ->label('Invitar Alumno')
+                    ->visible(fn () => $this->getOwnerRecord()->status == Status::Active)
                     ->slideOver()
                     ->modalWidth('xl')
+                    ->modalHeading('Invitar Alumno')
                     ->form(static function (Forms\Form $form) {
                         return $form->schema([
                             Components\TextInput::make('first_name')
@@ -87,29 +93,43 @@ class UsersRelationManager extends RelationManager
                         $record->assignRole('student');
                         (new SendWelcomeEmail)->handle($record);
                     }),
-                Tables\Actions\AttachAction::make()
-                    ->label('Vincular alumno')
-                    ->multiple()
-                    ->recordTitle(fn (User $record): string => "$record->name ($record->email)")
-                    ->recordSelectOptionsQuery(fn (Builder $query) => $query
-                        ->whereHas('roles',
-                            fn (Builder $query) => $query->where('name', 'student'))
-                    )
-                    ->recordSelectSearchColumns(['name', 'email']),
                 Tables\Actions\ImportAction::make()
                     ->label('Importar alumnos')
+                    ->visible(fn () => $this->getOwnerRecord()->status == Status::Active)
                     ->modalHeading('Importación masiva de alumnos')
                     ->importer(UserImporter::class)
                     ->options([
                         'groupID' => $this->ownerRecord->id,
                     ]),
+                Tables\Actions\AttachAction::make()
+                    ->label('Vincular alumno')
+                    ->visible(fn () => $this->getOwnerRecord()->status == Status::Active)
+                    ->modalHeading('Vincular alumno')
+                    ->recordSelect(fn (Components\Select $select) => $select
+                        ->placeholder('Buscar por nombre o email')
+                        ->allowHtml()
+                    )
+                    ->recordTitle(fn (User $record
+                    ): string => "$record->name <span class='text-sm text-gray-400 block'>$record->email</span>")
+                    ->recordSelectSearchColumns(['name', 'email'])
+                    ->recordSelectOptionsQuery(fn (Builder $query) => $query
+                        ->whereHas('roles',
+                            fn (Builder $query) => $query->where('name', 'student'))
+                    )
+                    ->after(function ($record, CreateUserWorks $createUserWorks) {
+                        if ($record->email_verified_at) {
+                            $createUserWorks->handle($this->getOwnerRecord(), $record);
+                        }
+                    }),
             ])
             ->actions([
                 Tables\Actions\Action::make('resend-welcome-email')
+                    ->label('Reenviar')
                     ->tooltip('Reenviar correo de activación')
-                    ->visible(fn (User $record) => ! $record->email_verified_at)
+                    ->visible(fn (User $record) => ! $record->email_verified_at
+                        && $this->getOwnerRecord()->status == Status::Active
+                    )
                     ->icon('heroicon-o-envelope')
-                    ->iconButton()
                     ->action(function (User $record) {
                         (new SendWelcomeEmail)->handle($record);
                         Notification::make()
@@ -118,17 +138,10 @@ class UsersRelationManager extends RelationManager
                             ->send();
                     }),
                 Tables\Actions\DetachAction::make()
-                    ->iconButton(),
-                Tables\Actions\EditAction::make()
-                    ->modalWidth('xl')
-                    ->iconButton()
-                    ->slideOver()
-                    ->mutateFormDataUsing(function (array $data): array {
-                        $data['first_name'] = str($data['first_name'])->title();
-                        $data['last_name'] = str($data['last_name'])->title();
-
-                        return $data;
-                    }),
-            ]);
+                    ->label('Desvincular')
+                    ->visible(fn () => $this->getOwnerRecord()->status == Status::Active),
+            ])
+            ->emptyStateHeading('No se encontraron alumnos')
+            ->emptyStateDescription('Invita, vincula o importa alumnos a este grupo para que aparezcan aquí.');
     }
 }

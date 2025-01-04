@@ -32,7 +32,6 @@ class WorkFactory extends Factory
             'project_id' => $project->id,
             'user_id' => $user->id,
             'group_id' => $group->id,
-            'folder' => $folder, // group / student / project
             'cover' => "$folder/cover.jpg",
             'images' => ["$folder/image1.jpg", "$folder/image2.jpg"],
             'visibility' => $this->faker->randomElement(['public', 'private', 'group']),

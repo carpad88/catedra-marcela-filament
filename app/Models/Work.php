@@ -21,6 +21,20 @@ class Work extends Model
         ];
     }
 
+    public static function boot(): void
+    {
+        parent::boot();
+
+        static::created(function ($work) {
+            $group = $work->group;
+            $user = $work->user;
+            $project = $work->project;
+
+            $work->folder = "$group->folderName/$user->folderName/$project->folderName";
+            $work->save();
+        });
+    }
+
     public function project(): BelongsTo
     {
         return $this->belongsTo(Project::class);

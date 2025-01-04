@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class CreateUserWorks
 {
-    public function handle(Group|Model $group, User $user): void
+    public static function handle(Group|Model $group, User $user): void
     {
         $group->projects->each(fn ($project) => $user->works()
             ->firstOrCreate([
