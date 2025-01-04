@@ -7,4 +7,5 @@ Route::view('/', 'welcome')->name('welcome');
 Route::redirect('/login', '/admin/login')->name('login');
 
 Route::get('/account/{token}', \App\Filament\Pages\AccountActivation::class)
-    ->name('account.activation');
+    ->name('account.activation')
+    ->middleware(\App\Http\Middleware\AccountActivationHasValidSignature::class);

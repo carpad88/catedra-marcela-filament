@@ -17,7 +17,7 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained();
             $table->foreignId('group_id')->constrained();
             $table->unsignedTinyInteger('score')->nullable();
-            $table->string('folder');
+            $table->string('folder')->nullable();
             $table->string('cover')->nullable();
             $table->json('images')->nullable();
             $table->enum('visibility', ['public', 'private', 'group'])->default('private');

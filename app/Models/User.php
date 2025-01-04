@@ -51,9 +51,7 @@ class User extends Authenticatable implements FilamentUser, HasName, MustVerifyE
 
     public function works(): HasMany
     {
-        return $this->hasMany(Work::class)
-            ->orderBy('year', 'desc')
-            ->orderBy('cycle', 'desc');
+        return $this->hasMany(Work::class);
     }
 
     public function getFolderNameAttribute(): string

@@ -2,6 +2,8 @@
 
 namespace App\Filament\Pages;
 
+use App\Actions\Users\CreateUserWorks;
+use App\Enums\Status;
 use App\Http\Responses\LoginResponse;
 use Filament\Actions\Action;
 use Filament\Facades\Filament;
@@ -39,25 +41,12 @@ class AccountActivation extends SimplePage
     #[Locked]
     public ?string $token = null;
 
-    public function mount(Request $request, $token): void
+    public function mount(Request $request, $token, $email = null): void
     {
-        if (Filament::auth()->check()) {
-            redirect()->intended(Filament::getUrl());
-        }
-
-        if (! $request->hasValidSignature()) {
-            Notification::make()
-                ->title('El link de activación caducó, solicita uno nuevo.')
-                ->danger()
-                ->send();
-
-            redirect('/admin/login');
-        }
-
         $this->token = $token ?? request()->query('token');
 
         $this->form->fill([
-            'email' => $email ?? request()->query('email'),
+            'email' => request()->query('email'),
         ]);
     }
 
@@ -86,7 +75,7 @@ class AccountActivation extends SimplePage
             ]);
     }
 
-    public function activateAccount()
+    public function activateAccount(CreateUserWorks $createUserWorks)
     {
         $data = $this->form->getState();
 
@@ -114,6 +103,10 @@ class AccountActivation extends SimplePage
                 'email' => $data['email'],
                 'password' => $data['password'],
             ]);
+
+            $user = auth()->user();
+            $group = $user->groups()->where('status', Status::Active)->first();
+            $createUserWorks->handle($group, $user);
 
             session()->regenerate();
 
