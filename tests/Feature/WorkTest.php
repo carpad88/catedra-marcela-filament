@@ -1,22 +1,19 @@
 <?php
 
 use App\Filament\Resources\WorkResource;
-use App\Models\User;
 use App\Models\Work;
 use Filament\Forms\Components\Repeater;
 
 use function Pest\Livewire\livewire;
 
-beforeEach(function () {
-    test()->actingAs(User::factory()->create());
-});
-
-test('can render works page', function () {
-    givePermissions('work', ['view']);
+it('renders the works page and displays the correct columns and records', function () {
+    actingAsWithPermissions('work', ['view']);
 
     Work::factory(2)->create();
 
-    test()->get(WorkResource::getUrl())->assertSuccessful();
+    test()->get(WorkResource::getUrl())
+        ->assertSuccessful()
+        ->assertSee('Trabajos');
 
     livewire(WorkResource\Pages\ListWorks::class)
         ->assertTableColumnExists('group.title')
@@ -29,88 +26,89 @@ test('can render works page', function () {
     test()->assertDatabaseCount(Work::class, 2);
 });
 
-test('unauthorized users cannot render works page', function () {
+it('prevents unauthorized users from accessing the works page', function () {
+    actingAsWithPermissions('works', []);
+
     test()->get(WorkResource::getUrl())
         ->assertForbidden()
         ->assertSee('403');
 });
 
-it('can create a new work', function () {
-    givePermissions('work', ['view', 'create']);
+it('prevents guests from accessing the admin works page', function () {
+    test()->get(WorkResource::getUrl())
+        ->assertRedirect('admin/login');
+});
 
-    $item = Work::factory()->make();
+it('allows authorized users to create a new work', function () {
+    actingAsWithPermissions('work', ['view', 'create']);
+
+    $work = Work::factory()->make();
 
     livewire(WorkResource\Pages\ListWorks::class)
         ->assertActionExists('create')
         ->assertActionEnabled('create')
         ->callAction('create', [
-            'group_id' => $item->group_id,
-            'project_id' => $item->project_id,
-            'user_id' => $item->user_id,
+            'group_id' => $work->group_id,
+            'project_id' => $work->project_id,
+            'user_id' => $work->user_id,
         ])
         ->assertHasNoActionErrors();
 
-    test()->assertModelExists($item->fresh());
+    test()->assertModelExists($work->fresh());
 
-    $item = Work::latest()->first();
-    test()->assertNotNull($item->folder);
+    $createdWork = Work::latest()->first();
+
+    expect($createdWork)->not->toBeNull()
+        ->and($createdWork->group_id)->toBe($work->group_id)
+        ->and($createdWork->project_id)->toBe($work->project_id)
+        ->and($createdWork->user_id)->toBe($work->user_id)
+        ->and($createdWork->folder)->not->toBeNull();
 });
 
-test('unauthorized users cannot see create action', function () {
-    givePermissions('work', ['view']);
+it('rejects invalid data during work creation', function () {
+    actingAsWithPermissions('work', ['view', 'create']);
+
+    livewire(WorkResource\Pages\ListWorks::class)
+        ->assertActionExists('create')
+        ->assertActionEnabled('create')
+        ->callAction('create', [
+            'group_id' => null, // Invalid data
+            'project_id' => null,
+            'user_id' => null,
+        ])
+        ->assertHasActionErrors(['group_id', 'project_id', 'user_id']);
+});
+
+it('prevents unauthorized users from seeing the create action', function () {
+    actingAsWithPermissions('work', ['view']);
 
     livewire(WorkResource\Pages\ListWorks::class)
         ->assertActionDisabled('create');
 });
 
-//it('can view project page', function () {
-//    givePermissions('work', ['view']);
-//
-//    test()->get(WorkResource::getUrl('view', [
-//        'record' => Work::factory()->create(),
-//    ]))->assertSuccessful();
-//
-//    $item = Work::factory()->create();
-//
-//    livewire(WorkResource\Pages\ViewWork::class, [
-//        'record' => $item->getRouteKey(),
-//    ])
-//        ->assertFormSet([
-//            'group_id' => $item->group_id,
-//            'project_id' => $item->project_id,
-//            'user_id' => $item->user_id,
-//        ]);
-//});
-//
-//test('unauthorized users cannot render view work page', function () {
-//    test()->get(WorkResource::getUrl('view', ['record' => Work::factory()->create()]))
-//        ->assertForbidden()
-//        ->assertSee('403');
-//});
+it('allows teachers to update any work in their groups', function () {
+    $teacher = actingAsWithPermissions('work', ['view', 'update'], 'teacher');
 
-test('teachers can update any work from its groups', function () {
-    givePermissions('work', ['view', 'update']);
-    assignRole('teacher');
+    $group = \App\Models\Group::factory()->create(['owner_id' => $teacher->id]);
+    $work = Work::factory()->create(['group_id' => $group->id]);
+    $newWork = Work::factory()->make();
 
-    $group = \App\Models\Group::factory()->create(['owner_id' => auth()->id()]);
-    $item = Work::factory()->create(['group_id' => $group->id]);
-    $newItem = Work::factory()->make();
-
-    test()->get(WorkResource::getUrl('edit', ['record' => $item]))->assertSuccessful();
+    test()->get(WorkResource::getUrl('edit', ['record' => $work]))->assertSuccessful();
 
     $undoRepeaterFake = Repeater::fake();
 
     livewire(WorkResource\Pages\EditWork::class, [
-        'record' => $item->getRouteKey(),
+        'record' => $work->getRouteKey(),
     ])
         ->assertFormSet([
-            'group_id' => $item->group_id,
-            'project_id' => $item->project_id,
-            'user_id' => $item->user_id,
-        ])->fillForm([
-            'cover' => [$newItem->cover],
-            'images' => $newItem->images,
-            'rubrics' => $item->project->criterias->map(fn ($rubric, $index) => [
+            'group_id' => $work->group_id,
+            'project_id' => $work->project_id,
+            'user_id' => $work->user_id,
+        ])
+        ->fillForm([
+            'cover' => [$newWork->cover],
+            'images' => $newWork->images,
+            'rubrics' => $work->project->criterias->map(fn ($rubric) => [
                 'id' => $rubric->id,
                 'title' => $rubric->title,
                 'order' => $rubric->order,
@@ -122,30 +120,33 @@ test('teachers can update any work from its groups', function () {
 
     $undoRepeaterFake();
 
-    expect($item->refresh())->cover->toBe($newItem->cover);
+    $work->refresh();
+    expect($work->cover)->toBe($newWork->cover)
+        ->and($work->images)->toBe($newWork->images);
 });
 
-test('users can update its works', function () {
-    givePermissions('work', ['view', 'update']);
+it('allows users to update their own works', function () {
+    $user = actingAsWithPermissions('work', ['view', 'update']);
 
-    $item = Work::factory()->create(['user_id' => auth()->id()]);
-    $newItem = Work::factory()->make();
+    $work = Work::factory()->create(['user_id' => $user->id]);
+    $newWork = Work::factory()->make();
 
-    test()->get(WorkResource::getUrl('edit', ['record' => $item]))->assertSuccessful();
+    test()->get(WorkResource::getUrl('edit', ['record' => $work]))->assertSuccessful();
 
     $undoRepeaterFake = Repeater::fake();
 
     livewire(WorkResource\Pages\EditWork::class, [
-        'record' => $item->getRouteKey(),
+        'record' => $work->getRouteKey(),
     ])
         ->assertFormSet([
-            'group_id' => $item->group_id,
-            'project_id' => $item->project_id,
-            'user_id' => $item->user_id,
-        ])->fillForm([
-            'cover' => [$newItem->cover],
-            'images' => $newItem->images,
-            'rubrics' => $item->project->criterias->map(fn ($rubric, $index) => [
+            'group_id' => $work->group_id,
+            'project_id' => $work->project_id,
+            'user_id' => $work->user_id,
+        ])
+        ->fillForm([
+            'cover' => [$newWork->cover],
+            'images' => $newWork->images,
+            'rubrics' => $work->project->criterias->map(fn ($rubric) => [
                 'id' => $rubric->id,
                 'title' => $rubric->title,
                 'order' => $rubric->order,
@@ -157,32 +158,39 @@ test('users can update its works', function () {
 
     $undoRepeaterFake();
 
-    expect($item->refresh())->cover->toBe($newItem->cover);
+    $work->refresh();
+    expect($work->cover)->toBe($newWork->cover)
+        ->and($work->images)->toBe($newWork->images);
 });
 
-test('unauthorized users cannot render edit project page', function () {
-    test()->get(WorkResource::getUrl('edit', ['record' => Work::factory()->create()]))
+it('prevents unauthorized users from accessing the edit project page', function () {
+    actingAsWithPermissions('work', []);
+
+    $work = Work::factory()->create();
+
+    test()->get(WorkResource::getUrl('edit', ['record' => $work]))
         ->assertForbidden()
         ->assertSee('403');
 });
 
-test('teachers can delete any work from its groups', function () {
-    givePermissions('work', ['view', 'delete']);
-    assignRole('teacher');
+it('allows teachers to delete any work in their groups', function () {
+    $teacher = actingAsWithPermissions('work', ['view', 'delete'], 'teacher');
 
-    $group = \App\Models\Group::factory()->create(['owner_id' => auth()->id()]);
-    $item = Work::factory()->create(['group_id' => $group->id]);
+    $group = \App\Models\Group::factory()->create(['owner_id' => $teacher->id]);
+    $work = Work::factory()->create(['group_id' => $group->id]);
 
     livewire(WorkResource\Pages\ListWorks::class)
         ->assertTableActionExists('delete')
-        ->callTableAction('delete', $item);
+        ->callTableAction('delete', $work);
 
-    test()->assertModelMissing($item);
+    test()->assertModelMissing($work);
 });
 
-test('unauthorized users cannot delete a project', function () {
-    givePermissions('work', ['view']);
+it('prevents unauthorized users from deleting a project', function () {
+    actingAsWithPermissions('work', ['view']);
+
+    $work = Work::factory()->create();
 
     livewire(WorkResource\Pages\ListWorks::class)
-        ->assertTableActionDisabled('delete', Work::factory()->create());
+        ->assertTableActionDisabled('delete', $work);
 });

@@ -11,6 +11,7 @@
 |
 */
 
+use App\Models\User;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 
@@ -46,4 +47,16 @@ function assignRole($role, $user = null): void
     $user = $user ?? auth()->user();
 
     $user->assignRole($role);
+}
+
+function actingAsWithPermissions($resource, $permissions, $role = null)
+{
+    $user = User::factory()->create();
+    test()->actingAs($user);
+    givePermissions($resource, $permissions);
+    if ($role) {
+        assignRole($role, $user);
+    }
+
+    return $user;
 }
