@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Support\Facades\Storage;
 
 class Work extends Model
 {
@@ -32,6 +33,32 @@ class Work extends Model
 
             $work->folder = "$group->folderName/$user->folderName/$project->folderName";
             $work->save();
+
+            if (! Storage::exists($work->folder)) {
+                Storage::disk('public')->makeDirectory($work->folder);
+            }
+        });
+
+        static::updated(function ($work) {
+            if ($work->isDirty('cover')) {
+                $oldCover = $work->getOriginal('cover');
+                if ($oldCover && Storage::disk('public')->exists($oldCover)) {
+                    Storage::disk('public')->delete($oldCover);
+                }
+            }
+
+            if ($work->isDirty('images')) {
+                $oldImages = $work->getOriginal('images') ?? [];
+                $newImages = $work->images ?? [];
+
+                $imagesToDelete = array_diff($oldImages, $newImages);
+
+                foreach ($imagesToDelete as $image) {
+                    if (Storage::disk('public')->exists($image)) {
+                        Storage::disk('public')->delete($image);
+                    }
+                }
+            }
         });
     }
 

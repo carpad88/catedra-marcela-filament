@@ -40,18 +40,15 @@ it('can create a new work', function () {
 
     $item = Work::factory()->make();
 
-    test()->get(WorkResource::getUrl('create'))->assertSuccessful();
-
-    livewire(WorkResource\Pages\CreateWork::class)
-        ->fillForm([
+    livewire(WorkResource\Pages\ListWorks::class)
+        ->assertActionExists('create')
+        ->assertActionEnabled('create')
+        ->callAction('create', [
             'group_id' => $item->group_id,
             'project_id' => $item->project_id,
             'user_id' => $item->user_id,
-            'cover' => [$item->cover],
-            'images' => $item->images,
         ])
-        ->call('create')
-        ->assertHasNoFormErrors();
+        ->assertHasNoActionErrors();
 
     test()->assertModelExists($item->fresh());
 
@@ -59,10 +56,11 @@ it('can create a new work', function () {
     test()->assertNotNull($item->folder);
 });
 
-test('unauthorized users cannot render create work page', function () {
-    test()->get(WorkResource::getUrl('create'))
-        ->assertForbidden()
-        ->assertSee('403');
+test('unauthorized users cannot see create action', function () {
+    givePermissions('work', ['view']);
+
+    livewire(WorkResource\Pages\ListWorks::class)
+        ->assertActionDisabled('create');
 });
 
 //it('can view project page', function () {

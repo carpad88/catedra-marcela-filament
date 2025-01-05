@@ -99,6 +99,13 @@ class WorksRelationManager extends RelationManager
                 Tables\Actions\CreateAction::make()
                     ->visible(fn () => $this->getOwnerRecord()->status == Status::Active)
                     ->modalWidth('2xl')
+                    ->using(fn ($data) => Work::updateOrCreate(
+                        [
+                            'group_id' => $this->getOwnerRecord()->id,
+                            'project_id' => $data['project_id'],
+                            'user_id' => $data['user_id'],
+                        ], $data)
+                    )
                     ->successRedirectUrl(fn (Work $record) => WorkResource::getUrl('edit', ['record' => $record])),
             ])
             ->actions([

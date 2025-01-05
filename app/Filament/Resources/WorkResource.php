@@ -5,6 +5,8 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\WorkResource\Pages;
 use App\Models\Group;
 use App\Models\Level;
+use App\Models\Project;
+use App\Models\User;
 use App\Models\Work;
 use Filament\Forms\Components;
 use Filament\Forms\Form;
@@ -69,19 +71,22 @@ class WorkResource extends Resource
 
                 Components\Section::make()
                     ->columns(3)
+                    ->hiddenOn('create')
                     ->schema([
                         Components\FileUpload::make('cover')
-                            ->columnSpan(1)
                             ->label('Portada')
+                            ->columnSpan(1)
+                            ->directory(self::getWorkFolder())
                             ->image()
                             ->required(),
                         Components\FileUpload::make('images')
-                            ->columnSpan(2)
                             ->label('Imágenes')
+                            ->columnSpan(2)
+                            ->panelLayout('grid')
+                            ->directory(self::getWorkFolder())
                             ->required()
                             ->image()
-                            ->multiple()
-                            ->panelLayout('grid'),
+                            ->multiple(),
                     ]),
 
                 Components\Section::make('Criterios de evaluación')
@@ -194,8 +199,18 @@ class WorkResource extends Resource
     {
         return [
             'index' => Pages\ListWorks::route('/'),
-            'create' => Pages\CreateWork::route('/create'),
             'edit' => Pages\EditWork::route('/{record}/edit'),
         ];
+    }
+
+    public static function getWorkFolder(): \Closure
+    {
+        return function (Get $get) {
+            $group = Group::where('id', $get('group_id'))->first();
+            $user = User::where('id', $get('user_id'))->first();
+            $project = Project::where('id', $get('project_id'))->first();
+
+            return "$group->folderName/$user->folderName/$project->folderName";
+        };
     }
 }

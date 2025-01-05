@@ -4,6 +4,7 @@ namespace App\Filament\Resources\WorkResource\Pages;
 
 use App\Enums\Status;
 use App\Filament\Resources\WorkResource;
+use App\Models\Work;
 use Filament\Actions;
 use Filament\Resources\Components\Tab;
 use Filament\Resources\Pages\ListRecords;
@@ -16,7 +17,15 @@ class ListWorks extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            Actions\CreateAction::make(),
+            Actions\CreateAction::make()
+                ->using(fn ($data) => static::getModel()::updateOrCreate(
+                    [
+                        'group_id' => $data['group_id'],
+                        'project_id' => $data['project_id'],
+                        'user_id' => $data['user_id'],
+                    ], $data)
+                )
+                ->successRedirectUrl(fn (Work $record) => WorkResource::getUrl('edit', ['record' => $record])),
         ];
     }
 

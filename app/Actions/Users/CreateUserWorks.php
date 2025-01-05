@@ -16,7 +16,5 @@ class CreateUserWorks
                 'group_id' => $group->id,
             ])
         );
-
-        // TODO: create the folder for each PROJECT
     }
 }
