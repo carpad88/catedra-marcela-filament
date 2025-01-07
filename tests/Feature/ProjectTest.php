@@ -65,7 +65,7 @@ test('unauthorized users cannot render create project page', function () {
         ->assertSee('403');
 });
 
-//it('can view project page', function () {
+// it('can view project page', function () {
 //    givePermissions('project', ['view']);
 //
 //    test()->get(ProjectResource::getUrl('view', [
@@ -82,13 +82,13 @@ test('unauthorized users cannot render create project page', function () {
 //            'started_at' => $item->started_at,
 //            'finished_at' => $item->finished_at,
 //        ]);
-//});
+// });
 
-//test('unauthorized users cannot render view project page', function () {
+// test('unauthorized users cannot render view project page', function () {
 //    test()->get(ProjectResource::getUrl('view', ['record' => Project::factory()->create()]))
 //        ->assertForbidden()
 //        ->assertSee('403');
-//});
+// });
 
 it('can update a project', function () {
     givePermissions('project', ['view', 'update']);

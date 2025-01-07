@@ -8,7 +8,6 @@ export default defineConfig({
                 'resources/css/app.css',
                 'resources/js/app.js',
                 'resources/css/filament/admin/theme.css',
-                './vendor/jaocero/radio-deck/resources/views/**/*.blade.php',
             ],
             refresh: true,
         }),
