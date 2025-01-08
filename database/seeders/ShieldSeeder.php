@@ -12,7 +12,7 @@ class ShieldSeeder extends Seeder
     {
         app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
-        $rolesWithPermissions = '[{"name":"super_admin","guard_name":"web","permissions":[]},{"name":"teacher","guard_name":"web","permissions":["view_group","view_any_group","create_group","update_group","replicate_group","reorder_group","delete_group","delete_any_group","view_user","view_any_user","create_user","update_user","replicate_user","reorder_user","delete_user","delete_any_user"]},{"name":"student","guard_name":"web","permissions":[]}]';
+        $rolesWithPermissions = '[{"name":"super_admin","guard_name":"web","permissions":[]},{"name":"teacher","guard_name":"web","permissions":["view_group","view_any_group","create_group","update_group","replicate_group","reorder_group","delete_group","delete_any_group","view_project","view_any_project","create_project","update_project","replicate_project","reorder_project","delete_project","delete_any_project","view_user","view_any_user","create_user","update_user","replicate_user","reorder_user","delete_user","delete_any_user","view_work","view_any_work","create_work","update_work","replicate_work","reorder_work","delete_work","delete_any_work"]},{"name":"student","guard_name":"web","permissions":[]}]';
         $directPermissions = '[{"name":"view_role","guard_name":"web"},{"name":"view_any_role","guard_name":"web"},{"name":"create_role","guard_name":"web"},{"name":"update_role","guard_name":"web"},{"name":"delete_role","guard_name":"web"},{"name":"delete_any_role","guard_name":"web"}]';
 
         static::makeRolesWithPermissions($rolesWithPermissions);

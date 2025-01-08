@@ -16,6 +16,7 @@ use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 
 class UsersRelationManager extends RelationManager
 {
@@ -23,9 +24,16 @@ class UsersRelationManager extends RelationManager
 
     protected static ?string $title = 'Alumnos';
 
+    protected static ?string $icon = 'phosphor-student-duotone';
+
     public function isReadOnly(): bool
     {
         return false;
+    }
+
+    public static function getBadge(Model $ownerRecord, string $pageClass): ?string
+    {
+        return $ownerRecord->students->count();
     }
 
     public function form(Form $form): Form
@@ -58,6 +66,7 @@ class UsersRelationManager extends RelationManager
             ->headerActions([
                 Tables\Actions\CreateAction::make()
                     ->label('Invitar Alumno')
+                    ->icon('phosphor-envelope')
                     ->visible(fn () => $this->getOwnerRecord()->status == Status::Active)
                     ->slideOver()
                     ->modalWidth('xl')
@@ -95,6 +104,7 @@ class UsersRelationManager extends RelationManager
                     }),
                 Tables\Actions\ImportAction::make()
                     ->label('Importar alumnos')
+                    ->icon('phosphor-upload-duotone')
                     ->visible(fn () => $this->getOwnerRecord()->status == Status::Active)
                     ->modalHeading('Importación masiva de alumnos')
                     ->importer(UserImporter::class)
@@ -103,6 +113,7 @@ class UsersRelationManager extends RelationManager
                     ]),
                 Tables\Actions\AttachAction::make()
                     ->label('Vincular alumno')
+                    ->icon('phosphor-user-plus-duotone')
                     ->visible(fn () => $this->getOwnerRecord()->status == Status::Active)
                     ->modalHeading('Vincular alumno')
                     ->recordSelect(fn (Components\Select $select) => $select
@@ -139,6 +150,8 @@ class UsersRelationManager extends RelationManager
                     }),
                 Tables\Actions\DetachAction::make()
                     ->label('Desvincular')
+                    ->modalIcon('phosphor-user-minus-duotone')
+                    ->modalHeading('Desvincular alumno del grupo')
                     ->visible(fn () => $this->getOwnerRecord()->status == Status::Active),
             ])
             ->emptyStateHeading('No se encontraron alumnos')

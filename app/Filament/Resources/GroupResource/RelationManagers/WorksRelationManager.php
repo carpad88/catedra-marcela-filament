@@ -12,6 +12,7 @@ use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 
 class WorksRelationManager extends RelationManager
 {
@@ -21,9 +22,16 @@ class WorksRelationManager extends RelationManager
 
     protected static ?string $label = 'Trabajo';
 
+    protected static ?string $icon = 'phosphor-images-duotone';
+
     public function isReadOnly(): bool
     {
         return false;
+    }
+
+    public static function getBadge(Model $ownerRecord, string $pageClass): ?string
+    {
+        return $ownerRecord->works->count();
     }
 
     public function form(Form $form): Form
@@ -111,7 +119,7 @@ class WorksRelationManager extends RelationManager
             ->actions([
                 Tables\Actions\Action::make('rubric')
                     ->label('Rúbrica')
-                    ->icon('heroicon-o-adjustments-horizontal')
+                    ->icon('phosphor-exam-duotone')
                     ->url(fn ($record) => WorkResource::getUrl('edit', ['record' => $record])),
             ])
             ->bulkActions([

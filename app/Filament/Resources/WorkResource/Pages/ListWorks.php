@@ -33,12 +33,12 @@ class ListWorks extends ListRecords
     {
         return [
             'active' => Tab::make('Activos')
-                ->icon('heroicon-o-check-circle')
+                ->icon('phosphor-check-circle-duotone')
                 ->modifyQueryUsing(fn (Builder $query) => $query
                     ->whereRelation('group', 'status', '=', Status::Active)
                 ),
             'archived' => Tab::make('Archivados')
-                ->icon('heroicon-o-archive-box')
+                ->icon('phosphor-archive-duotone')
                 ->modifyQueryUsing(fn (Builder $query) => $query
                     ->whereRelation('group', 'status', '=', Status::Archived)
                 ),

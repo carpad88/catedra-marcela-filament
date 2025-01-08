@@ -12,6 +12,7 @@ use Filament\Tables;
 use Filament\Tables\Columns;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 
 class ProjectsRelationManager extends RelationManager
 {
@@ -19,9 +20,16 @@ class ProjectsRelationManager extends RelationManager
 
     protected static ?string $title = 'Proyectos';
 
+    protected static ?string $icon = 'phosphor-calendar-dots-duotone';
+
     public function isReadOnly(): bool
     {
         return false;
+    }
+
+    public static function getBadge(Model $ownerRecord, string $pageClass): ?string
+    {
+        return $ownerRecord->projects->count();
     }
 
     public function form(Form $form): Form
@@ -63,7 +71,15 @@ class ProjectsRelationManager extends RelationManager
             ->headerActions([
                 Tables\Actions\AttachAction::make()
                     ->label('Vincular proyecto')
-                    ->visible(fn () => $this->getOwnerRecord()->status == Status::Active)
+                    ->icon('phosphor-calendar-plus-duotone')
+                    ->visible(function () {
+                        $activeProjects = Project::whereStatus('active')->get();
+                        $attachedProjects = $this->getOwnerRecord()->projects;
+
+                        $unattachedProjects = $activeProjects->diff($attachedProjects);
+
+                        return $this->getOwnerRecord()->status == Status::Active && $unattachedProjects->isNotEmpty();
+                    })
                     ->modalHeading('Vincular proyecto')
                     ->preloadRecordSelect()
                     ->recordSelectOptionsQuery(fn ($query) => $query->whereStatus('active'))
@@ -79,14 +95,15 @@ class ProjectsRelationManager extends RelationManager
                                         'project_id' => $record->id,
                                         'group_id' => $this->getOwnerRecord()->id,
                                     ]);
-                                // TODO: create the project folder for each STUDENT
                             });
                     }),
             ])
             ->actions([
                 Tables\Actions\DetachAction::make()
                     ->visible(fn () => $this->getOwnerRecord()->status == Status::Active)
-                    ->icon(null),
+                    ->icon('phosphor-calendar-minus-duotone')
+                    ->modalIcon('phosphor-calendar-minus-duotone')
+                    ->modalHeading('Desvincular proyecto del grupo'),
             ])
             ->bulkActions([
                 //

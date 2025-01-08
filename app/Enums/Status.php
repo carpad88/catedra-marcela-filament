@@ -30,8 +30,8 @@ enum Status: string implements HasColor, HasIcon, HasLabel
     public function getIcon(): ?string
     {
         return match ($this) {
-            self::Active => 'heroicon-o-check-circle',
-            self::Archived => 'heroicon-o-archive-box',
+            self::Active => 'phosphor-check-circle-duotone',
+            self::Archived => 'phosphor-archive-duotone',
         };
     }
 }
