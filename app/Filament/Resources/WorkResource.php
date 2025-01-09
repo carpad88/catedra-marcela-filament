@@ -178,10 +178,10 @@ class WorkResource extends Resource
                 //
             ])
             ->actions([
-                Tables\Actions\EditAction::make()
-                    ->iconButton(),
-                Tables\Actions\DeleteAction::make()
-                    ->iconButton(),
+                Tables\Actions\ActionGroup::make([
+                    Tables\Actions\EditAction::make(),
+                    Tables\Actions\DeleteAction::make(),
+                ])->link(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

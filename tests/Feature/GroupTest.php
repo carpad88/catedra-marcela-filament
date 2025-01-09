@@ -197,7 +197,7 @@ it('can attach a project to a group', function () {
     $group = Group::factory()
         ->has(User::factory()->count(2)->students())
         ->create(['owner_id' => auth()->id(), 'status' => 'active']);
-    $item = Project::factory()->create(['owner_id' => auth()->id()]);
+    $item = Project::factory()->create(['owner_id' => auth()->id(), 'status' => 'active']);
 
     livewire(ProjectsRelationManager::class, [
         'ownerRecord' => $group,

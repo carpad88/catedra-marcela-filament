@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Enums\Status;
 use App\Models\Group;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -26,6 +27,7 @@ class GroupFactory extends Factory
             'year' => date('Y'),
             'cycle' => Arr::random(['A', 'B']),
             'title' => $this->faker->sentence(4),
+            'status' => Status::Active,
         ];
     }
 }

@@ -10,7 +10,9 @@ use App\Filament\Resources\GroupResource\RelationManagers\WorksRelationManager;
 use App\Models\Group;
 use Filament\Forms\Components;
 use Filament\Forms\Form;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
+use Filament\Support\Colors\Color;
 use Filament\Tables;
 use Filament\Tables\Table;
 
@@ -29,12 +31,12 @@ class GroupResource extends Resource
     public static function form(Form $form): Form
     {
         return $form
-            ->columns(5)
+            ->columns(4)
             ->schema([
                 Components\TextInput::make('title')
                     ->label('Descripción')
                     ->hiddenOn('view')
-                    ->columnSpan(3)
+                    ->columnSpan(4)
                     ->required(),
                 Components\TextInput::make('year')
                     ->label('Año')
@@ -53,6 +55,12 @@ class GroupResource extends Resource
                     ->default('A')
                     ->grouped()
                     ->required(),
+                Components\ToggleButtons::make('status')
+                    ->label('¿El grupo está activo?')
+                    ->hiddenOn(['view', 'create'])
+                    ->columnSpan(2)
+                    ->options(Status::class)
+                    ->grouped(),
             ]);
     }
 
@@ -60,6 +68,7 @@ class GroupResource extends Resource
     {
         return $table
             ->modifyQueryUsing(fn ($query) => $query->owned())
+            ->defaultPaginationPageOption(25)
             ->columns([
                 Tables\Columns\TextColumn::make('title')
                     ->label('Descripción'),
@@ -79,7 +88,7 @@ class GroupResource extends Resource
                     ->label('Estado')
                     ->badge(Status::class),
                 Tables\Columns\TextColumn::make('owner.name')
-                    ->label('Propietario')
+                    ->label('Docente')
                     ->visible(fn () => auth()->user()->hasRole('super_admin')),
                 Tables\Columns\TextColumn::make('projects_count')
                     ->counts('projects')
@@ -96,16 +105,51 @@ class GroupResource extends Resource
                     ->label('Trabajos')
                     ->badge()
                     ->alignCenter(),
+                Tables\Columns\TextColumn::make('works_avg_score')
+                    ->label('Promedio')
+                    ->color(Color::Green)
+                    ->avg('works', 'score')
+                    ->numeric(decimalPlaces: 0)
+                    ->badge()
+                    ->alignCenter(),
             ])
             ->filters([
                 //
             ])
             ->actions([
-                Tables\Actions\EditAction::make()
-                    ->modalWidth('2xl')
-                    ->iconButton(),
-                Tables\Actions\DeleteAction::make()
-                    ->iconButton(),
+                Tables\Actions\ActionGroup::make([
+                    Tables\Actions\EditAction::make()
+                        ->modalWidth('2xl'),
+                    Tables\Actions\Action::make('archive')
+                        ->label('Archivar')
+                        ->icon('phosphor-archive-duotone')
+                        ->visible(fn (Group $record) => $record->status == Status::Active)
+                        ->action(function (Group $record) {
+                            $record->update(['status' => Status::Archived]);
+                            $record->projects()->update(['status' => Status::Archived]);
+
+                            Notification::make()
+                                ->title('Grupo archivado')
+                                ->body('Los proyectos y trabajos asociados también han sido archivados.')
+                                ->success()
+                                ->send();
+                        }),
+                    Tables\Actions\Action::make('unarchive')
+                        ->label('Desarchivar')
+                        ->icon('phosphor-box-arrow-up-duotone')
+                        ->visible(fn (Group $record) => $record->status == Status::Archived)
+                        ->action(function (Group $record) {
+                            $record->update(['status' => Status::Active]);
+                            $record->projects()->update(['status' => Status::Active]);
+
+                            Notification::make()
+                                ->title('Grupo desarchivado')
+                                ->body('Los proyectos y trabajos asociados también han sido desarchivados.')
+                                ->success()
+                                ->send();
+                        }),
+                    Tables\Actions\DeleteAction::make(),
+                ])->link(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

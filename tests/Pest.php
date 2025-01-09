@@ -53,7 +53,9 @@ function actingAsWithPermissions($resource, $permissions, $role = null)
 {
     $user = User::factory()->create();
     test()->actingAs($user);
+
     givePermissions($resource, $permissions);
+
     if ($role) {
         assignRole($role, $user);
     }

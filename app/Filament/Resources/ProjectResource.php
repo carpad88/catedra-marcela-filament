@@ -13,7 +13,6 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
 
 class ProjectResource extends Resource
 {
@@ -51,22 +50,16 @@ class ProjectResource extends Resource
                             ->native(false)
                             ->default(now()->addDays(10))
                             ->required(),
-                        Components\Select::make('groups')
-                            ->label('Grupos')
-                            ->multiple()
-                            ->relationship(
-                                'groups',
-                                'period',
-                                modifyQueryUsing: fn (Builder $query, $operation) => $operation == 'create'
-                                    ? $query->owned()->where('status', Status::Active)
-                                    : $query->owned()
-                            )
-                            ->getOptionLabelFromRecordUsing(fn (Group $record) => "$record->period - $record->title")
-                            ->preload(fn (Builder $query, $operation) => $operation == 'create')
-                            ->optionsLimit(10),
                         Components\FileUpload::make('cover')
                             ->label('Portada')
                             ->required(),
+                        Components\Select::make('groups')
+                            ->label('Grupos')
+                            ->hiddenOn('create')
+                            ->disabledOn('edit')
+                            ->multiple()
+                            ->relationship('groups', 'period')
+                            ->getOptionLabelFromRecordUsing(fn (Group $record) => "$record->period - $record->title"),
                     ]),
 
                 Components\Group::make()
@@ -162,10 +155,20 @@ class ProjectResource extends Resource
                 //
             ])
             ->actions([
-                Tables\Actions\EditAction::make()
-                    ->iconButton(),
-                Tables\Actions\DeleteAction::make()
-                    ->iconButton(),
+                Tables\Actions\ActionGroup::make([
+                    Tables\Actions\EditAction::make(),
+                    Tables\Actions\Action::make('archive')
+                        ->label('Archivar')
+                        ->icon('phosphor-archive-duotone')
+                        ->visible(fn (Project $record) => $record->status == Status::Active)
+                        ->action(fn (Project $record) => $record->update(['status' => Status::Archived])),
+                    Tables\Actions\Action::make('unarchive')
+                        ->label('Desarchivar')
+                        ->icon('phosphor-box-arrow-up-duotone')
+                        ->visible(fn (Project $record) => $record->status == Status::Archived)
+                        ->action(fn (Project $record) => $record->update(['status' => Status::Active])),
+                    Tables\Actions\DeleteAction::make(),
+                ])->link(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
