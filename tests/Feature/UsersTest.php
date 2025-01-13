@@ -2,56 +2,88 @@
 
 use App\Filament\Resources\UserResource;
 use App\Filament\Resources\UserResource\Pages\ManageUsers;
+use App\Filament\Resources\UserResource\Pages\ViewUser;
+use App\Filament\Resources\UserResource\RelationManagers\WorksRelationManager;
+use App\Models\Group;
 use App\Models\User;
+use Spatie\Permission\Models\Role;
 
 use function Pest\Livewire\livewire;
 
-beforeEach(function () {
-    test()->actingAs(User::factory()->create());
-});
+it('renders the users page and displays the correct records', function () {
+    actingAsWithPermissions('user', ['view']);
 
-it('can render users page', function () {
-    givePermissions('user', ['view']);
-    $users = User::factory(2)->create();
+    $createdUsers = User::factory(2)->create();
 
-    test()->get(UserResource::getUrl())->assertSuccessful();
+    test()->get(UserResource::getUrl())
+        ->assertSuccessful();
 
     livewire(ManageUsers::class)
         ->assertCountTableRecords(3)
-        ->assertCanSeeTableRecords($users);
+        ->assertCanSeeTableRecords($createdUsers);
 
     test()->assertDatabaseCount(User::class, 3);
 });
 
-test('unauthorized users cannot render users page', function () {
+it('prevents unauthorized users from accessing the users page', function () {
+    actingAsWithPermissions('user', []);
+
     test()->get(UserResource::getUrl())
         ->assertForbidden()
         ->assertSee('403');
 });
 
-it('can create a new user', function () {
-    givePermissions('user', ['view', 'create']);
+it('prevents guests from accessing the admin users page', function () {
+    test()->get(UserResource::getUrl())
+        ->assertRedirect('admin/login');
+});
 
-    $user = User::factory()->make();
+it('allows authorized users to view a user', function () {
+    actingAsWithPermissions('user', ['view']);
+
+    $user = User::factory()->create();
+
+    test()->get(UserResource::getUrl('view', ['record' => $user->getRouteKey()]))
+        ->assertSuccessful();
+
+    livewire(ViewUser::class, [
+        'record' => $user->getRouteKey(),
+    ])
+        ->assertSuccessful()
+        ->assertActionExists('edit')
+        ->assertSee($user->code)
+        ->assertSee($user->name)
+        ->assertSee($user->email);
+});
+
+it('allows authorized users to create a new user', function () {
+    actingAsWithPermissions('user', ['view', 'create'], 'super_admin');
+
+    $newUserData = User::factory()->make()->toArray();
+    Role::firstOrCreate(['name' => 'student', 'guard_name' => 'web']);
 
     livewire(ManageUsers::class)
         ->assertActionExists('create')
         ->assertActionEnabled('create')
-        ->callAction('create', $user->toArray())
+        ->callAction('create', $newUserData)
         ->assertHasNoActionErrors();
 
-    test()->assertModelExists($user->fresh());
+    $createdUser = User::where('email', $newUserData['email'])->first();
+
+    expect($createdUser)->not->toBeNull()
+        ->and($createdUser->first_name)->toBe(str($newUserData['first_name'])->title()->value())
+        ->and($createdUser->email)->toBe($newUserData['email']);
 });
 
-test('unauthorized users cannot see create action', function () {
-    givePermissions('user', ['view']);
+it('prevents unauthorized users from seeing the create action', function () {
+    actingAsWithPermissions('user', ['view']);
 
     livewire(ManageUsers::class)
         ->assertActionDisabled('create');
 });
 
-it('can update a user', function () {
-    givePermissions('user', ['view', 'update']);
+it('allows authorized users to update a user', function () {
+    actingAsWithPermissions('user', ['view', 'update']);
 
     $user = User::factory()->create();
     $newName = 'New Name';
@@ -66,15 +98,17 @@ it('can update a user', function () {
     expect($user->fresh()->first_name)->toBe($newName);
 });
 
-test('unauthorized users cannot see edit action', function () {
-    givePermissions('user', ['view']);
+it('prevents unauthorized users from seeing the edit action', function () {
+    actingAsWithPermissions('user', ['view']);
+
+    $user = User::factory()->make();
 
     livewire(ManageUsers::class)
-        ->assertTableActionDisabled('edit', User::factory()->make());
+        ->assertTableActionDisabled('edit', $user);
 });
 
-it('can delete a single user', function () {
-    givePermissions('user', ['view', 'delete']);
+it('allows authorized users to delete a single user', function () {
+    actingAsWithPermissions('user', ['view', 'delete']);
 
     $user = User::factory()->create();
 
@@ -86,8 +120,17 @@ it('can delete a single user', function () {
     test()->assertModelMissing($user);
 });
 
-it('can bulk delete users', function () {
-    givePermissions('user', ['view', 'delete']);
+it('prevents unauthorized users from seeing the delete action', function () {
+    actingAsWithPermissions('user', ['view']);
+
+    $user = User::factory()->make();
+
+    livewire(ManageUsers::class)
+        ->assertTableActionDisabled('delete', $user);
+});
+
+it('allows authorized users to bulk delete users', function () {
+    actingAsWithPermissions('user', ['view', 'delete']);
 
     $users = User::factory(3)->create();
 
@@ -96,12 +139,35 @@ it('can bulk delete users', function () {
         ->assertNotified()
         ->assertCanNotSeeTableRecords($users);
 
-    test()->assertModelMissing($users[0]);
+    foreach ($users as $user) {
+        test()->assertModelMissing($user);
+    }
 });
 
-test('unauthorized users cannot see delete action', function () {
-    givePermissions('user', ['view']);
+it('prevents bulk delete with no selection', function () {
+    actingAsWithPermissions('user', ['view', 'delete']);
 
     livewire(ManageUsers::class)
-        ->assertTableActionDisabled('delete', User::factory()->make());
+        ->callTableBulkAction('delete', [])
+        ->assertHasNoTableActionErrors();
+});
+
+it('renders the works relation manager and displays the correct records', function () {
+    actingAsWithPermissions('user', ['view']);
+
+    $group = Group::factory()
+        ->hasProjects(3)
+        ->create(['owner_id' => auth()->id()]);
+    $user = User::factory()->create();
+    $user->groups()->attach($group);
+
+    \App\Actions\Users\CreateUserWorks::handle($user->groups()->first(), $user);
+
+    livewire(WorksRelationManager::class, [
+        'ownerRecord' => $group,
+        'pageClass' => UserResource\Pages\ViewUser::class,
+    ])
+        ->assertSuccessful()
+        ->assertCountTableRecords(3)
+        ->assertCanSeeTableRecords($group->works);
 });

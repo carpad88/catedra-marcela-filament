@@ -56,7 +56,7 @@ class GroupResource extends Resource
                     ->grouped()
                     ->required(),
                 Components\ToggleButtons::make('status')
-                    ->label('¿El grupo está activo?')
+                    ->label('¿Estado del grupo?')
                     ->hiddenOn(['view', 'create'])
                     ->columnSpan(2)
                     ->options(Status::class)

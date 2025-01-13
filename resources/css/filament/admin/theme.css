@@ -2,6 +2,19 @@
 
 @config 'tailwind.config.js';
 
+@keyframes __where {
+    0% {
+        box-shadow: inset 4px 4px #ff1e90, inset -4px -4px #ff1e90
+    }
+    100% {
+        box-shadow: inset 8px 8px #3399ff, inset -8px -8px #3399ff
+    }
+}
+
+.where, .\? {
+    animation: __where 0.5s ease-in-out alternate infinite;
+}
+
 .fi-sidebar {
     border-right: 1px solid #eaeaea;
 }

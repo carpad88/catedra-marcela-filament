@@ -2,7 +2,10 @@
 
 namespace App\Filament\Resources;
 
+use App\Actions\DeleteRecord;
+use App\Enums\Status;
 use App\Filament\Resources\UserResource\Pages;
+use App\Filament\Resources\UserResource\RelationManagers\WorksRelationManager;
 use App\Models\Group;
 use App\Models\User;
 use Filament\Forms\Components;
@@ -59,7 +62,8 @@ class UserResource extends Resource
                     ->relationship(
                         'groups',
                         'title',
-                        modifyQueryUsing: fn (Builder $query, $operation) => $query->currentCycle()->owned()
+                        modifyQueryUsing: fn (Builder $query, $operation) => $query
+                            ->where('status', '=', Status::Active)
                     )
                     ->getOptionLabelFromRecordUsing(fn (Group $record
                     ) => "$record->year$record->cycle - $record->title")
@@ -117,18 +121,19 @@ class UserResource extends Resource
                 //
             ])
             ->actions([
-                Tables\Actions\EditAction::make()
-                    ->modalWidth('xl')
-                    ->iconButton()
-                    ->slideOver()
-                    ->mutateFormDataUsing(function (array $data): array {
-                        $data['first_name'] = str($data['first_name'])->title();
-                        $data['last_name'] = str($data['last_name'])->title();
+                Tables\Actions\ActionGroup::make([
+                    Tables\Actions\EditAction::make()
+                        ->modalWidth('xl')
+                        ->slideOver()
+                        ->mutateFormDataUsing(function (array $data): array {
+                            $data['first_name'] = str($data['first_name'])->title();
+                            $data['last_name'] = str($data['last_name'])->title();
 
-                        return $data;
-                    }),
-                Tables\Actions\DeleteAction::make()
-                    ->iconButton(),
+                            return $data;
+                        }),
+                    Tables\Actions\DeleteAction::make()
+                        ->action(fn ($record) => DeleteRecord::handle($record)),
+                ])->link(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -141,6 +146,14 @@ class UserResource extends Resource
     {
         return [
             'index' => Pages\ManageUsers::route('/'),
+            'view' => Pages\ViewUser::route('/{record}'),
+        ];
+    }
+
+    public static function getRelations(): array
+    {
+        return [
+            WorksRelationManager::class,
         ];
     }
 }

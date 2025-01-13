@@ -16,6 +16,7 @@ class ManageUsers extends ManageRecords
         return [
             Actions\CreateAction::make()
                 ->modalWidth('xl')
+                ->visible(fn () => auth()->user()->hasRole('super_admin'))
                 ->slideOver()
                 ->mutateFormDataUsing(function (array $data): array {
                     $data['first_name'] = str($data['first_name'])->title();
@@ -23,7 +24,10 @@ class ManageUsers extends ManageRecords
 
                     return $data;
                 })
-                ->after(fn ($record) => (new SendWelcomeEmail)->handle($record)),
+                ->after(function ($record) {
+                    (new SendWelcomeEmail)->handle($record);
+                    $record->roles()->count() === 0 && $record->assignRole('student');
+                }),
         ];
     }
 }
