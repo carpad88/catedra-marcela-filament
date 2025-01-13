@@ -4,7 +4,6 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\WorkResource\Pages;
 use App\Models\Group;
-use App\Models\Level;
 use App\Models\Project;
 use App\Models\User;
 use App\Models\Work;
@@ -13,11 +12,11 @@ use Filament\Forms\Form;
 use Filament\Forms\Get;
 use Filament\Forms\Set;
 use Filament\Resources\Resource;
+use Filament\Support\Colors\Color;
 use Filament\Tables;
 use Filament\Tables\Columns;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use JaOcero\RadioDeck\Forms\Components\RadioDeck;
 
 class WorkResource extends Resource
 {
@@ -90,50 +89,6 @@ class WorkResource extends Resource
                             ->image()
                             ->multiple(),
                     ]),
-
-                Components\Section::make('Criterios de evaluación')
-                    ->collapsible()
-                    ->hiddenOn('create')
-                    ->schema([
-                        Components\Repeater::make('rubrics')
-                            ->columnSpan('full')
-                            ->hiddenLabel()
-                            ->deletable(false)
-                            ->orderColumn(false)
-                            ->addable(false)
-                            ->itemLabel(fn (array $state): ?string => $state['title']
-                                ? "{$state['order']}. {$state['title']}"
-                                : null
-                            )
-                            ->required()
-                            ->schema([
-                                RadioDeck::make('level_id')
-                                    ->hiddenLabel()
-                                    ->required()
-                                    ->options(fn ($get) => Level::where('criteria_id', $get('./')['id'])
-                                        ->get()
-                                        ->mapWithKeys(fn ($item) => [$item->id => "{$item->title} ({$item->score} pt)"])
-                                    )
-                                    ->validationMessages([
-                                        'required' => 'Selecciona un nivel de desempeño.',
-                                    ])
-                                    ->descriptions(fn ($get) => Level::where('criteria_id', $get('./')['id'])
-                                        ->get()
-                                        ->mapWithKeys(fn ($item) => [$item->id => $item->description])
-                                    )
-                                    ->extraCardsAttributes([
-                                        'class' => 'flex-col justify-start items-start peer-checked:bg-primary-100',
-                                    ])
-                                    ->extraOptionsAttributes([
-                                        'class' => 'w-full flex flex-col items-start justify-start',
-                                    ])
-                                    ->extraDescriptionsAttributes([
-                                        'class' => 'leading-normal',
-                                    ])
-                                    ->color('primary')
-                                    ->columns(4),
-                            ]),
-                    ]),
             ]);
     }
 
@@ -147,6 +102,7 @@ class WorkResource extends Resource
                 ->orderBy('users.name')
                 ->select('works.*')
             )
+            ->recordUrl(false)
             ->columns([
                 Columns\ImageColumn::make('cover')
                     ->label('Portada')
@@ -180,6 +136,11 @@ class WorkResource extends Resource
             ->actions([
                 Tables\Actions\ActionGroup::make([
                     Tables\Actions\EditAction::make(),
+                    Tables\Actions\Action::make('rubric')
+                        ->label('Rúbrica')
+                        ->icon('phosphor-exam-duotone')
+                        ->color(Color::Green)
+                        ->url(fn ($record) => WorkResource::getUrl('rubric', ['record' => $record])),
                     Tables\Actions\DeleteAction::make(),
                 ])->link(),
             ])
@@ -202,6 +163,7 @@ class WorkResource extends Resource
         return [
             'index' => Pages\ListWorks::route('/'),
             'edit' => Pages\EditWork::route('/{record}/edit'),
+            'rubric' => Pages\GradeWork::route('/{record}/rubric'),
         ];
     }
 

@@ -95,8 +95,6 @@ it('allows teachers to update any work in their groups', function () {
 
     test()->get(WorkResource::getUrl('edit', ['record' => $work]))->assertSuccessful();
 
-    $undoRepeaterFake = Repeater::fake();
-
     livewire(WorkResource\Pages\EditWork::class, [
         'record' => $work->getRouteKey(),
     ])
@@ -108,6 +106,34 @@ it('allows teachers to update any work in their groups', function () {
         ->fillForm([
             'cover' => [$newWork->cover],
             'images' => $newWork->images,
+        ])
+        ->call('save')
+        ->assertHasNoFormErrors();
+
+    $work->refresh();
+    expect($work->cover)->toBe($newWork->cover)
+        ->and($work->images)->toBe($newWork->images);
+});
+
+it('allows teachers to grade any work in their groups', function () {
+    $teacher = actingAsWithPermissions('work', ['view', 'update'], 'teacher');
+
+    $group = \App\Models\Group::factory()->create(['owner_id' => $teacher->id]);
+    $work = Work::factory()->create(['group_id' => $group->id]);
+
+    test()->get(WorkResource::getUrl('rubric', ['record' => $work]))->assertSuccessful();
+
+    $undoRepeaterFake = Repeater::fake();
+
+    livewire(WorkResource\Pages\GradeWork::class, [
+        'record' => $work->getRouteKey(),
+    ])
+        ->assertFormSet([
+            'group_id' => $work->group_id,
+            'project_id' => $work->project_id,
+            'user_id' => $work->user_id,
+        ])
+        ->fillForm([
             'rubrics' => $work->project->criterias->map(fn ($rubric) => [
                 'id' => $rubric->id,
                 'title' => $rubric->title,
@@ -121,8 +147,8 @@ it('allows teachers to update any work in their groups', function () {
     $undoRepeaterFake();
 
     $work->refresh();
-    expect($work->cover)->toBe($newWork->cover)
-        ->and($work->images)->toBe($newWork->images);
+    expect($work->score)->not->toBeNull()
+        ->and($work->score)->toBe($work->scores->sum('level.score'));
 });
 
 it('allows users to update their own works', function () {

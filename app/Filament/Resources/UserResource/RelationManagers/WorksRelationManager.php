@@ -3,9 +3,8 @@
 namespace App\Filament\Resources\UserResource\RelationManagers;
 
 use App\Filament\Resources\WorkResource;
-use Filament\Forms;
-use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Support\Colors\Color;
 use Filament\Tables;
 use Filament\Tables\Columns\Summarizers\Average;
 use Filament\Tables\Columns\Summarizers\Count;
@@ -20,21 +19,16 @@ class WorksRelationManager extends RelationManager
 
     protected static ?string $title = 'Trabajos';
 
-    public function form(Form $form): Form
+    public function isReadOnly(): bool
     {
-        return $form
-            ->schema([
-                Forms\Components\TextInput::make('id')
-                    ->required()
-                    ->maxLength(255),
-            ]);
+        return false;
     }
 
     public function table(Table $table): Table
     {
         return $table
             ->recordTitleAttribute('id')
-            ->recordUrl(fn ($record) => WorkResource::getUrl('edit', ['record' => $record]))
+            ->recordUrl(fn ($record) => WorkResource::getUrl('rubric', ['record' => $record]))
             ->defaultGroup('group.period')
             ->groupingSettingsHidden()
             ->paginated(false)
@@ -73,6 +67,18 @@ class WorksRelationManager extends RelationManager
             ->contentGrid([
                 'md' => 2,
                 'xl' => 3,
+            ])
+            ->actions([
+                Tables\Actions\Action::make('edit')
+                    ->label('Editar')
+                    ->icon('phosphor-pencil-duotone')
+                    ->color(Color::Blue)
+                    ->url(fn ($record) => WorkResource::getUrl('edit', ['record' => $record])),
+                Tables\Actions\Action::make('rubric')
+                    ->label('Rúbrica')
+                    ->icon('phosphor-exam-duotone')
+                    ->color(Color::Green)
+                    ->url(fn ($record) => WorkResource::getUrl('rubric', ['record' => $record])),
             ]);
     }
 }

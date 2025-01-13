@@ -9,6 +9,7 @@ use App\Models\Work;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Support\Colors\Color;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -71,7 +72,7 @@ class WorksRelationManager extends RelationManager
                 ->select('works.*')
             )
             ->recordTitleAttribute('id')
-            ->recordUrl(fn ($record) => WorkResource::getUrl('edit', ['record' => $record]))
+            ->recordUrl(false)
             ->columns([
                 Tables\Columns\ImageColumn::make('cover')
                     ->label('Portada')
@@ -120,6 +121,11 @@ class WorksRelationManager extends RelationManager
                 Tables\Actions\Action::make('rubric')
                     ->label('Rúbrica')
                     ->icon('phosphor-exam-duotone')
+                    ->color(Color::Green)
+                    ->url(fn ($record) => WorkResource::getUrl('rubric', ['record' => $record])),
+                Tables\Actions\Action::make('edit')
+                    ->label('Editar')
+                    ->icon('phosphor-pencil-duotone')
                     ->url(fn ($record) => WorkResource::getUrl('edit', ['record' => $record])),
             ])
             ->bulkActions([
