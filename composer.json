@@ -11,6 +11,7 @@
         "codeat3/blade-phosphor-icons": "^2.0",
         "filament/filament": "^3.2",
         "jaocero/radio-deck": "^1.2",
+        "joshembling/image-optimizer": "^1.4",
         "laravel/framework": "^11.31",
         "laravel/tinker": "^2.9",
         "spatie/laravel-permission": "^6.10"

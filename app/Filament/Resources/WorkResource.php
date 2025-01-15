@@ -79,6 +79,8 @@ class WorkResource extends Resource
                             ->columnSpan(1)
                             ->directory(self::getWorkFolder())
                             ->image()
+                            ->optimize('webp')
+                            ->maxSize(1024)
                             ->required(),
                         Components\FileUpload::make('images')
                             ->label('Imágenes')
@@ -87,6 +89,10 @@ class WorkResource extends Resource
                             ->directory(self::getWorkFolder())
                             ->required()
                             ->image()
+                            ->optimize('webp')
+                            ->maxSize(1024)
+                            ->minFiles(3)
+                            ->maxFiles(10)
                             ->multiple(),
                     ]),
             ]);
