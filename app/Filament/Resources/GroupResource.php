@@ -2,6 +2,8 @@
 
 namespace App\Filament\Resources;
 
+use App\Actions\BulkDeleteRecords;
+use App\Actions\DeleteRecord;
 use App\Enums\Status;
 use App\Filament\Resources\GroupResource\Pages;
 use App\Filament\Resources\GroupResource\RelationManagers\ProjectsRelationManager;
@@ -148,12 +150,14 @@ class GroupResource extends Resource
                                 ->success()
                                 ->send();
                         }),
-                    Tables\Actions\DeleteAction::make(),
+                    Tables\Actions\DeleteAction::make()
+                        ->action(fn (Group $record) => DeleteRecord::handle($record)),
                 ])->link(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                    Tables\Actions\DeleteBulkAction::make()
+                        ->action(fn ($records) => BulkDeleteRecords::handle($records)),
                 ]),
             ]);
     }

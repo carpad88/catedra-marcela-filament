@@ -2,6 +2,8 @@
 
 namespace App\Filament\Resources;
 
+use App\Actions\BulkDeleteRecords;
+use App\Actions\DeleteRecord;
 use App\Filament\Resources\WorkResource\Pages;
 use App\Models\Group;
 use App\Models\Project;
@@ -147,12 +149,14 @@ class WorkResource extends Resource
                         ->icon('phosphor-exam-duotone')
                         ->color(Color::Green)
                         ->url(fn ($record) => WorkResource::getUrl('rubric', ['record' => $record])),
-                    Tables\Actions\DeleteAction::make(),
+                    Tables\Actions\DeleteAction::make()
+                        ->action(fn (Work $record) => DeleteRecord::handle($record)),
                 ])->link(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                    Tables\Actions\DeleteBulkAction::make()
+                        ->action(fn ($records) => BulkDeleteRecords::handle($records)),
                 ]),
             ]);
     }

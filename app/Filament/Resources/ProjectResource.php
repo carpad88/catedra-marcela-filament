@@ -2,6 +2,8 @@
 
 namespace App\Filament\Resources;
 
+use App\Actions\BulkDeleteRecords;
+use App\Actions\DeleteRecord;
 use App\Enums\Status;
 use App\Filament\Resources\ProjectResource\Pages;
 use App\Filament\Resources\ProjectResource\RelationManagers\CriteriasRelationManager;
@@ -167,12 +169,14 @@ class ProjectResource extends Resource
                         ->icon('phosphor-box-arrow-up-duotone')
                         ->visible(fn (Project $record) => $record->status == Status::Archived)
                         ->action(fn (Project $record) => $record->update(['status' => Status::Active])),
-                    Tables\Actions\DeleteAction::make(),
+                    Tables\Actions\DeleteAction::make()
+                        ->action(fn (Project $record) => DeleteRecord::handle($record)),
                 ])->link(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                    Tables\Actions\DeleteBulkAction::make()
+                        ->action(fn ($records) => BulkDeleteRecords::handle($records)),
                 ]),
             ]);
     }

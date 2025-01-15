@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Actions\BulkDeleteRecords;
 use App\Actions\DeleteRecord;
 use App\Enums\Status;
 use App\Filament\Resources\UserResource\Pages;
@@ -137,7 +138,8 @@ class UserResource extends Resource
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                    Tables\Actions\DeleteBulkAction::make()
+                        ->action(fn ($records) => BulkDeleteRecords::handle($records)),
                 ]),
             ]);
     }
