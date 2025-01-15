@@ -6,6 +6,7 @@ use Filament\Forms;
 use Filament\Http\Responses\Auth\Contracts\LoginResponse;
 use Filament\Support\Facades\FilamentIcon;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -23,6 +24,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        URL::forceScheme('https');
+
         Model::unguard();
 
         Forms\Components\Select::configureUsing(function (Forms\Components\Select $entry): void {
