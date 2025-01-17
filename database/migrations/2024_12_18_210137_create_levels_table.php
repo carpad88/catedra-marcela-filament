@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('levels', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('criteria_id')->constrained();
+            $table->foreignId('criteria_id')->constrained()->cascadeOnDelete();
             $table->string('title');
             $table->text('description');
             $table->integer('score');

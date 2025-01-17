@@ -33,7 +33,7 @@ class WorkFactory extends Factory
             'user_id' => $user->id,
             'group_id' => $group->id,
             'cover' => "$folder/cover.jpg",
-            'images' => ["$folder/image1.jpg", "$folder/image2.jpg"],
+            'images' => ["$folder/image1.jpg", "$folder/image2.jpg", "$folder/image2.jpg"],
             'visibility' => $this->faker->randomElement(['public', 'private', 'group']),
         ];
     }

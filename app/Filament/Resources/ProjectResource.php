@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Actions\BulkDeleteRecords;
 use App\Actions\DeleteRecord;
+use App\Actions\Projects\DuplicateProject;
 use App\Enums\Status;
 use App\Filament\Resources\ProjectResource\Pages;
 use App\Filament\Resources\ProjectResource\RelationManagers\CriteriasRelationManager;
@@ -39,6 +40,12 @@ class ProjectResource extends Resource
                     ->columnSpan(1)
                     ->collapsible()
                     ->schema([
+                        Components\FileUpload::make('cover')
+                            ->label('Portada')
+                            ->optimize('webp')
+                            ->image()
+                            ->directory('projects')
+                            ->required(),
                         Components\TextInput::make('title')
                             ->label('Título')
                             ->required(),
@@ -52,13 +59,16 @@ class ProjectResource extends Resource
                             ->native(false)
                             ->default(now()->addDays(10))
                             ->required(),
-                        Components\FileUpload::make('cover')
-                            ->label('Portada')
-                            ->required(),
+                        Components\ToggleButtons::make('status')
+                            ->label('¿Estado del proyecto?')
+                            ->hiddenOn(['view', 'create'])
+                            ->options(Status::class)
+                            ->grouped(),
                         Components\Select::make('groups')
                             ->label('Grupos')
                             ->hiddenOn('create')
                             ->disabledOn('edit')
+                            ->visible(fn ($record) => $record->groups->isNotEmpty())
                             ->multiple()
                             ->relationship('groups', 'period')
                             ->getOptionLabelFromRecordUsing(fn (Group $record) => "$record->period - $record->title"),
@@ -169,6 +179,13 @@ class ProjectResource extends Resource
                         ->icon('phosphor-box-arrow-up-duotone')
                         ->visible(fn (Project $record) => $record->status == Status::Archived)
                         ->action(fn (Project $record) => $record->update(['status' => Status::Active])),
+                    Tables\Actions\ReplicateAction::make()
+                        ->label('Duplicar')
+                        ->icon('phosphor-copy-duotone')
+                        ->requiresConfirmation()
+                        ->modalHeading('Duplicar proyecto')
+                        ->modalDescription('¿Estás seguro de que deseas duplicar este proyecto?')
+                        ->action(fn (Project $record) => DuplicateProject::handle($record)),
                     Tables\Actions\DeleteAction::make()
                         ->action(fn (Project $record) => DeleteRecord::handle($record)),
                 ])->link(),
