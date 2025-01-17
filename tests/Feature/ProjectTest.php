@@ -6,17 +6,14 @@ use App\Models\User;
 
 use function Pest\Livewire\livewire;
 
-beforeEach(function () {
-    test()->actingAs(User::factory()->create());
-});
+it('renders the projects page and displays only owned projects', function () {
+    actingAsWithPermissions('project', ['view']);
 
-test('can render projects page and view only owned projects', function () {
-    givePermissions('project', ['view']);
+    Project::factory(2)->create(); // Projects not owned by the authenticated user
+    $userProjects = Project::factory(2)->create(['owner_id' => auth()->id()]); // Owned projects
 
-    Project::factory(2)->create();
-    $userProjects = Project::factory(2)->create(['owner_id' => auth()->id()]);
-
-    test()->get(ProjectResource::getUrl())->assertSuccessful();
+    test()->get(ProjectResource::getUrl())
+        ->assertSuccessful();
 
     livewire(ProjectResource\Pages\ListProjects::class)
         ->assertTableColumnExists('title')
@@ -29,119 +26,141 @@ test('can render projects page and view only owned projects', function () {
     test()->assertDatabaseCount(Project::class, 4);
 });
 
-test('unauthorized users cannot render projects page', function () {
+it('prevents unauthorized users from accessing the projects page', function () {
+    actingAsWithPermissions('project', []);
+
     test()->get(ProjectResource::getUrl())
         ->assertForbidden()
         ->assertSee('403');
 });
 
-it('can create a new project', function () {
-    givePermissions('project', ['view', 'create']);
+it('prevents guests from accessing the admin projects page', function () {
+    test()->get(ProjectResource::getUrl())
+        ->assertRedirect('admin/login');
+});
 
-    $item = Project::factory()->make();
+it('allows authorized users to view a project page', function () {})
+    ->skip('Not implemented');
 
-    test()->get(ProjectResource::getUrl('create'))->assertSuccessful();
+it('prevents unauthorized users from accessing the view project page', function () {})
+    ->skip('Not implemented');
+
+it('allows authorized users to create a new project', function () {
+    actingAsWithPermissions('project', ['view', 'create']);
+
+    $newProjectData = Project::factory()->make([
+        'started_at' => now(),
+        'finished_at' => now()->addDays(15),
+    ])->toArray();
+
+    test()->get(ProjectResource::getUrl('create'))
+        ->assertSuccessful();
 
     livewire(ProjectResource\Pages\CreateProject::class)
         ->fillForm([
-            'cover' => [$item->cover],
-            'title' => $item->title,
-            'started_at' => now(),
-            'finished_at' => now()->addDays(15),
-            'description' => $item->description,
-            'goals' => $item->goals,
-            'activities' => $item->activities,
-            'conditions' => $item->conditions,
+            'cover' => [$newProjectData['cover']],
+            'title' => $newProjectData['title'],
+            'started_at' => $newProjectData['started_at'],
+            'finished_at' => $newProjectData['finished_at'],
+            'description' => $newProjectData['description'],
+            'goals' => $newProjectData['goals'],
+            'activities' => $newProjectData['activities'],
+            'conditions' => $newProjectData['conditions'],
         ])
         ->call('create')
         ->assertHasNoFormErrors();
 
-    test()->assertModelExists($item->fresh());
+    $createdProject = Project::where('title', $newProjectData['title'])->first();
+
+    expect($createdProject)->not->toBeNull()
+        ->and($createdProject->title)->toBe($newProjectData['title'])
+        ->and($createdProject->description)->toBe($newProjectData['description']);
 });
 
-test('unauthorized users cannot render create project page', function () {
+it('prevents unauthorized users from accessing the create project page', function () {
+    actingAsWithPermissions('project', []);
+
     test()->get(ProjectResource::getUrl('create'))
         ->assertForbidden()
         ->assertSee('403');
 });
 
-// it('can view project page', function () {
-//    givePermissions('project', ['view']);
-//
-//    test()->get(ProjectResource::getUrl('view', [
-//        'record' => Project::factory()->create(['owner_id' => auth()->id()]),
-//    ]))->assertSuccessful();
-//
-//    $item = Project::factory()->create(['owner_id' => auth()->id()]);
-//
-//    livewire(ProjectResource\Pages\ViewProject::class, [
-//        'record' => $item->getRouteKey(),
-//    ])
-//        ->assertFormSet([
-//            'title' => $item->title,
-//            'started_at' => $item->started_at,
-//            'finished_at' => $item->finished_at,
-//        ]);
-// });
+it('allows authorized users to update a project', function () {
+    actingAsWithPermissions('project', ['view', 'update']);
 
-// test('unauthorized users cannot render view project page', function () {
-//    test()->get(ProjectResource::getUrl('view', ['record' => Project::factory()->create()]))
-//        ->assertForbidden()
-//        ->assertSee('403');
-// });
-
-it('can update a project', function () {
-    givePermissions('project', ['view', 'update']);
-
-    $item = Project::factory()->create(['owner_id' => auth()->id()]);
+    $project = Project::factory()->create(['owner_id' => auth()->id()]);
     $newTitle = 'New Title';
 
-    test()->get(ProjectResource::getUrl('edit', ['record' => $item]))->assertSuccessful();
+    test()->get(ProjectResource::getUrl('edit', ['record' => $project]))
+        ->assertSuccessful();
 
     livewire(ProjectResource\Pages\EditProject::class, [
-        'record' => $item->getRouteKey(),
+        'record' => $project->getRouteKey(),
     ])
         ->assertFormSet([
-            'title' => $item->title,
-            'started_at' => $item->started_at,
-            'finished_at' => $item->finished_at,
-        ])->fillForm([
-            'cover' => [$item->cover],
+            'title' => $project->title,
+            'started_at' => $project->started_at,
+            'finished_at' => $project->finished_at,
+        ])
+        ->fillForm([
+            'cover' => [$project->cover],
             'title' => $newTitle,
             'started_at' => now(),
             'finished_at' => now()->addDays(15),
-            'description' => $item->description,
-            'goals' => $item->goals,
-            'activities' => $item->activities,
-            'conditions' => $item->conditions,
+            'description' => $project->description,
+            'goals' => $project->goals,
+            'activities' => $project->activities,
+            'conditions' => $project->conditions,
         ])
         ->call('save')
         ->assertHasNoFormErrors();
 
-    expect($item->refresh())->title->toBe($newTitle);
+    expect($project->refresh())->title->toBe($newTitle);
 });
 
-test('unauthorized users cannot render edit project page', function () {
-    test()->get(ProjectResource::getUrl('edit', ['record' => Project::factory()->create()]))
+it('prevents unauthorized users from accessing the edit project page', function () {
+    actingAsWithPermissions('project', []);
+
+    $project = Project::factory()->create();
+
+    test()->get(ProjectResource::getUrl('edit', ['record' => $project]))
         ->assertForbidden()
         ->assertSee('403');
 });
 
-it('can delete a project', function () {
-    givePermissions('project', ['view', 'delete']);
+it('allows authorized users to delete a project', function () {
+    actingAsWithPermissions('project', ['view', 'delete']);
 
-    $item = Project::factory()->create(['owner_id' => auth()->id()]);
+    $project = Project::factory()->create(['owner_id' => auth()->id()]);
 
     livewire(ProjectResource\Pages\ListProjects::class)
         ->assertTableActionExists('delete')
-        ->callTableAction('delete', $item);
+        ->callTableAction('delete', $project->getRouteKey());
 
-    test()->assertModelMissing($item);
+    test()->assertModelMissing($project);
 });
 
-test('unauthorized users cannot delete a project', function () {
-    givePermissions('project', ['view']);
+it('prevents unauthorized users from deleting a project', function () {
+    actingAsWithPermissions('project', ['view']);
+
+    $project = Project::factory()->create();
 
     livewire(ProjectResource\Pages\ListProjects::class)
-        ->assertTableActionDisabled('delete', Project::factory()->create());
+        ->assertTableActionDisabled('delete', $project);
+});
+
+it('allows authorized users to duplicate a project', function () {
+    actingAsWithPermissions('project', ['view', 'create', 'replicate']);
+
+    $originalProject = Project::factory()->create(['owner_id' => auth()->id()]);
+
+    livewire(ProjectResource\Pages\ListProjects::class)
+        ->assertTableActionExists('replicate')
+        ->callTableAction('replicate', $originalProject->getRouteKey());
+
+    $duplicatedProject = Project::where('title', $originalProject->title.' (Copia)')->first();
+
+    expect($duplicatedProject)->not->toBeNull()
+        ->and($duplicatedProject->title)->toBe($originalProject->title.' (Copia)')
+        ->and($duplicatedProject->id)->not->toBe($originalProject->id);
 });

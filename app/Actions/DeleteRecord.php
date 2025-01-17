@@ -4,7 +4,6 @@ namespace App\Actions;
 
 use Filament\Notifications\Notification;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Collection;
 
 class DeleteRecord
 {

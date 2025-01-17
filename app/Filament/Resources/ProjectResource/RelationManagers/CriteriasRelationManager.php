@@ -2,6 +2,8 @@
 
 namespace App\Filament\Resources\ProjectResource\RelationManagers;
 
+use App\Actions\BulkDeleteRecords;
+use App\Actions\DeleteRecord;
 use Filament\Forms\Components;
 use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
@@ -91,11 +93,13 @@ class CriteriasRelationManager extends RelationManager
             ->actions([
                 Tables\Actions\EditAction::make()
                     ->modalWidth('2xl'),
-                Tables\Actions\DeleteAction::make(),
+                Tables\Actions\DeleteAction::make()
+                    ->action(fn ($record) => DeleteRecord::handle($record)),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                    Tables\Actions\DeleteBulkAction::make()
+                        ->action(fn ($records) => BulkDeleteRecords::handle($records)),
                 ]),
             ]);
     }
