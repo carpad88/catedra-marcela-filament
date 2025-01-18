@@ -32,6 +32,8 @@ class AdminPanelProvider extends PanelProvider
             ->colors([
                 'primary' => Color::Purple,
             ])
+            ->brandLogo(asset('img/logo.svg'))
+            ->brandLogoHeight('6rem')
             ->sidebarWidth('16rem')
             ->breadcrumbs(false)
             ->darkMode(false)
