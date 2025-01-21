@@ -7,5 +7,6 @@ export default {
         './resources/views/filament/**/*.blade.php',
         './vendor/filament/**/*.blade.php',
         './vendor/jaocero/radio-deck/resources/views/**/*.blade.php',
+        './vendor/diogogpinto/filament-auth-ui-enhancer/resources/**/*.blade.php',
     ],
 }

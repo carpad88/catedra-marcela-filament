@@ -9,6 +9,7 @@
         "php": "^8.2",
         "bezhansalleh/filament-shield": "^3.3",
         "codeat3/blade-phosphor-icons": "^2.0",
+        "diogogpinto/filament-auth-ui-enhancer": "^1.0",
         "filament/filament": "^3.2",
         "jaocero/radio-deck": "^1.2",
         "joshembling/image-optimizer": "^1.4",

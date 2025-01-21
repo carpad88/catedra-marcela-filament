@@ -3,6 +3,7 @@
 namespace App\Providers\Filament;
 
 use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
+use DiogoGPinto\AuthUIEnhancer\AuthUIEnhancerPlugin;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
@@ -33,7 +34,7 @@ class AdminPanelProvider extends PanelProvider
                 'primary' => Color::Purple,
             ])
             ->brandLogo(asset('img/logo.svg'))
-            ->brandLogoHeight('6rem')
+            ->brandLogoHeight('3rem')
             ->sidebarWidth('16rem')
             ->breadcrumbs(false)
             ->darkMode(false)
@@ -62,6 +63,11 @@ class AdminPanelProvider extends PanelProvider
             ->databaseNotificationsPolling(false)
             ->plugins([
                 FilamentShieldPlugin::make(),
+                AuthUIEnhancerPlugin::make()
+                    ->mobileFormPanelPosition('bottom')
+                    ->formPanelPosition()
+                    ->formPanelWidth('35%')
+                    ->emptyPanelBackgroundImageUrl(asset('img/bg-login.webp')),
             ])
             ->authMiddleware([
                 Authenticate::class,
