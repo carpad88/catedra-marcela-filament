@@ -11,7 +11,7 @@ use Spatie\Permission\Models\Role;
 use function Pest\Livewire\livewire;
 
 it('renders the users page and displays the correct records', function () {
-    actingAsWithPermissions('user', ['view']);
+    actingAsWithPermissions('user', ['view'], 'teacher');
 
     $createdUsers = User::factory(2)->create();
 
@@ -39,7 +39,7 @@ it('prevents guests from accessing the admin users page', function () {
 });
 
 it('allows authorized users to view a user', function () {
-    actingAsWithPermissions('user', ['view']);
+    actingAsWithPermissions('user', ['view'], 'teacher');
 
     $user = User::factory()->create();
 

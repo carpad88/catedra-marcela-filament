@@ -6,7 +6,7 @@ use App\Models\Project;
 use function Pest\Livewire\livewire;
 
 it('renders the projects page and displays only owned projects', function () {
-    actingAsWithPermissions('project', ['view']);
+    actingAsWithPermissions('project', ['view'], 'teacher');
 
     Project::factory(2)->create(); // Projects not owned by the authenticated user
     $userProjects = Project::factory(2)->create(['owner_id' => auth()->id()]); // Owned projects
@@ -45,7 +45,7 @@ it('prevents unauthorized users from accessing the view project page', function 
     ->skip('Not implemented');
 
 it('allows authorized users to create a new project', function () {
-    actingAsWithPermissions('project', ['view', 'create']);
+    actingAsWithPermissions('project', ['view', 'create'], 'teacher');
 
     $newProjectData = Project::factory()->make([
         'started_at' => now(),
@@ -85,7 +85,7 @@ it('prevents unauthorized users from accessing the create project page', functio
 });
 
 it('allows authorized users to update a project', function () {
-    actingAsWithPermissions('project', ['view', 'update']);
+    actingAsWithPermissions('project', ['view', 'update'], 'teacher');
 
     $project = Project::factory()->create(['owner_id' => auth()->id()]);
     $newTitle = 'New Title';

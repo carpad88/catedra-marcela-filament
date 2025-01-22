@@ -12,17 +12,14 @@ use App\Models\User;
 
 use function Pest\Livewire\livewire;
 
-beforeEach(function () {
-    test()->actingAs(User::factory()->create());
-});
-
-it('can render groups page and view only owned groups', function () {
-    givePermissions('group', ['view']);
+it('renders the groups page and displays only owned groups', function () {
+    actingAsWithPermissions('group', ['view'], 'teacher');
 
     Group::factory(2)->create();
-    $userGroups = Group::factory(2)->create(['owner_id' => auth()->id()]);
+    $ownedGroups = Group::factory(2)->create(['owner_id' => auth()->id()]);
 
-    test()->get(GroupResource::getUrl())->assertSuccessful();
+    test()->get(GroupResource::getUrl())
+        ->assertSuccessful();
 
     livewire(ManageGroups::class)
         ->assertTableColumnExists('title')
@@ -30,98 +27,108 @@ it('can render groups page and view only owned groups', function () {
         ->assertTableColumnExists('cycle')
         ->assertTableColumnHidden('owner.name')
         ->assertCountTableRecords(2)
-        ->assertCanSeeTableRecords($userGroups);
+        ->assertCanSeeTableRecords($ownedGroups);
 
     test()->assertDatabaseCount(Group::class, 4);
 });
 
-test('unauthorized users cannot render groups page', function () {
+it('prevents unauthorized users from accessing the groups page', function () {
+    actingAsWithPermissions('group', []);
+
     test()->get(GroupResource::getUrl())
         ->assertForbidden()
         ->assertSee('403');
 });
 
-it('can create a new group', function () {
-    givePermissions('group', ['view', 'create']);
+it('allows authorized users to create a new group', function () {
+    actingAsWithPermissions('group', ['view', 'create']);
 
-    $item = Group::factory()->make();
+    $newGroupData = Group::factory()->make()->toArray();
 
     livewire(ManageGroups::class)
         ->assertActionExists('create')
         ->assertActionEnabled('create')
-        ->callAction('create', $item->toArray())
+        ->callAction('create', $newGroupData)
         ->assertHasNoActionErrors();
 
-    test()->assertModelExists($item->fresh());
+    $createdGroup = Group::where('title', $newGroupData['title'])->first();
+
+    expect($createdGroup)->not->toBeNull()
+        ->and($createdGroup->title)->toBe($newGroupData['title'])
+        ->and($createdGroup->year)->toBe(intval($newGroupData['year']));
 });
 
-test('unauthorized users cannot see create action', function () {
-    givePermissions('group', ['view']);
+it('prevents unauthorized users from seeing the create action', function () {
+    actingAsWithPermissions('group', ['view']);
 
     livewire(ManageGroups::class)
         ->assertActionDisabled('create');
 });
 
-it('can update a group', function () {
-    givePermissions('group', ['view', 'update']);
+it('allows authorized users to update a group', function () {
+    actingAsWithPermissions('group', ['view', 'update']);
 
-    $item = Group::factory()->create(['owner_id' => auth()->id()]);
+    $group = Group::factory()->create(['owner_id' => auth()->id()]);
     $newTitle = 'New Title';
 
     livewire(ManageGroups::class)
-        ->mountTableAction('edit', $item)
-        ->assertTableActionDataSet(['title' => $item->title])
+        ->mountTableAction('edit', $group)
+        ->assertTableActionDataSet(['title' => $group->title])
         ->setTableActionData(['title' => $newTitle])
         ->callMountedTableAction()
         ->assertHasNoTableActionErrors();
 
-    expect($item->fresh()->title)->toBe($newTitle);
+    expect($group->fresh()->title)->toBe($newTitle);
 });
 
-test('unauthorized users cannot see edit action', function () {
-    givePermissions('group', ['view', 'update']);
+it('prevents unauthorized users from seeing the edit action', function () {
+    actingAsWithPermissions('group', ['view']);
 
-    $item = Group::factory()->create();
+    $group = Group::factory()->create();
 
     livewire(ManageGroups::class)
-        ->assertTableActionDisabled('edit', $item);
+        ->assertTableActionDisabled('edit', $group);
 });
 
-it('can delete a group', function () {
-    givePermissions('group', ['view', 'delete']);
+it('allows authorized users to delete a group', function () {
+    actingAsWithPermissions('group', ['view', 'delete']);
 
-    $item = Group::factory()->create(['owner_id' => auth()->id()]);
+    $group = Group::factory()->create(['owner_id' => auth()->id()]);
 
     livewire(ManageGroups::class)
-        ->callTableAction('delete', $item->getRouteKey())
+        ->callTableAction('delete', $group->getRouteKey())
         ->assertNotified()
-        ->assertCanNotSeeTableRecords([$item]);
+        ->assertCanNotSeeTableRecords([$group]);
 
-    test()->assertModelMissing($item);
+    test()->assertModelMissing($group);
 });
 
-it('can bulk delete groups', function () {
-    givePermissions('group', ['view', 'delete']);
+it('allows authorized users to bulk delete groups', function () {
+    actingAsWithPermissions('group', ['view', 'delete']);
 
-    $items = Group::factory(2)->create(['owner_id' => auth()->id()]);
+    $groups = Group::factory(2)->create(['owner_id' => auth()->id()]);
 
     livewire(ManageGroups::class)
-        ->callTableBulkAction('delete', $items)
+        ->callTableBulkAction('delete', $groups)
         ->assertNotified()
-        ->assertCanNotSeeTableRecords($items);
+        ->assertCanNotSeeTableRecords($groups);
 
-    test()->assertModelMissing($items[0]);
+    foreach ($groups as $group) {
+        test()->assertModelMissing($group);
+    }
 });
 
-test('unauthorized users cannot see delete action', function () {
-    givePermissions('group', ['view', 'delete']);
+it('prevents unauthorized users from seeing the delete action', function () {
+    actingAsWithPermissions('group', ['view']);
+
+    $group = Group::factory()->create();
 
     livewire(ManageGroups::class)
-        ->assertTableActionDisabled('delete', Group::factory()->create());
+        ->assertTableActionDisabled('delete', $group);
 });
 
-it('can render the users relation manager', function () {
-    givePermissions('group', ['view']);
+it('renders the users relation manager', function () {
+    actingAsWithPermissions('group', ['view']);
 
     $group = Group::factory()
         ->hasUsers(3)
@@ -139,8 +146,8 @@ it('can render the users relation manager', function () {
         ->assertCanSeeTableRecords($group->users);
 });
 
-it('can attach a user to a group', function () {
-    givePermissions('group', ['view', 'update']);
+it('allows authorized users to attach a user to a group', function () {
+    actingAsWithPermissions('group', ['view', 'update']);
 
     $group = Group::factory()->hasProjects(2)->create(['status' => 'active']);
     $user = User::factory()->create();
@@ -156,8 +163,8 @@ it('can attach a user to a group', function () {
     expect($user->works()->count())->toBe(2);
 });
 
-it('can remove a user from a group', function () {
-    givePermissions('group', ['view', 'update']);
+it('allows authorized users to remove a user from a group', function () {
+    actingAsWithPermissions('group', ['view', 'update']);
 
     $group = Group::factory()->create();
     $user = User::factory()->create();
@@ -174,8 +181,8 @@ it('can remove a user from a group', function () {
         ->assertCanNotSeeTableRecords([$user]);
 });
 
-it('can render the projects relation manager', function () {
-    givePermissions('group', ['view']);
+it('renders the projects relation manager', function () {
+    actingAsWithPermissions('group', ['view']);
 
     $group = Group::factory()
         ->hasProjects(3, ['owner_id' => auth()->id()])
@@ -191,46 +198,46 @@ it('can render the projects relation manager', function () {
         ->assertCanSeeTableRecords($group->projects);
 });
 
-it('can attach a project to a group', function () {
-    givePermissions('group', ['view', 'update']);
+it('allows authorized users to attach a project to a group', function () {
+    actingAsWithPermissions('group', ['view', 'update']);
 
     $group = Group::factory()
         ->has(User::factory()->count(2)->students())
         ->create(['owner_id' => auth()->id(), 'status' => 'active']);
-    $item = Project::factory()->create(['owner_id' => auth()->id(), 'status' => 'active']);
+    $project = Project::factory()->create(['owner_id' => auth()->id(), 'status' => 'active']);
 
     livewire(ProjectsRelationManager::class, [
         'ownerRecord' => $group,
         'pageClass' => \App\Filament\Admin\Resources\GroupResource\Pages\ViewGroup::class,
     ])
         ->assertTableActionExists('attach')
-        ->callTableAction('attach', data: ['recordId' => $item->getRouteKey()])
-        ->assertCanSeeTableRecords([$item]);
+        ->callTableAction('attach', data: ['recordId' => $project->getRouteKey()])
+        ->assertCanSeeTableRecords([$project]);
 
     expect($group->projects()->count())->toBe(1)
         ->and($group->works->count())->toBe(2);
 });
 
-it('can remove a project from a group', function () {
-    givePermissions('group', ['view', 'update']);
+it('allows authorized users to remove a project from a group', function () {
+    actingAsWithPermissions('group', ['view', 'update']);
 
     $group = Group::factory()->create();
-    $item = Project::factory()->create();
+    $project = Project::factory()->create();
 
-    $group->projects()->attach($item);
+    $group->projects()->attach($project);
 
     livewire(ProjectsRelationManager::class, [
         'ownerRecord' => $group,
         'pageClass' => \App\Filament\Admin\Resources\GroupResource\Pages\ViewGroup::class,
     ])
-        ->mountTableAction('detach', $item)
+        ->mountTableAction('detach', $project)
         ->assertTableActionExists('detach')
         ->callMountedTableAction()
-        ->assertCanNotSeeTableRecords([$item]);
+        ->assertCanNotSeeTableRecords([$project]);
 });
 
-it('can render works relation manager', function () {
-    givePermissions('group', ['view']);
+it('renders the works relation manager', function () {
+    actingAsWithPermissions('group', ['view']);
 
     $group = Group::factory()
         ->hasProjects(3)
@@ -249,9 +256,9 @@ it('can render works relation manager', function () {
         ->assertCanSeeTableRecords($group->works);
 });
 
-it('can create works in the relation manager', function () {
-    givePermissions('group', ['view', 'update']);
-    givePermissions('work', ['create']);
+it('allows authorized users to create works in the relation manager', function () {
+    actingAsWithPermissions('group', ['view', 'update']);
+    actingAsWithPermissions('work', ['create']);
 
     $group = Group::factory()
         ->hasProjects(1, ['owner_id' => auth()->id()])
