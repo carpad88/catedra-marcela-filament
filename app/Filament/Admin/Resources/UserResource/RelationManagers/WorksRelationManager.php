@@ -47,7 +47,7 @@ class WorksRelationManager extends RelationManager
             ->columns([
                 Tables\Columns\Layout\Split::make([
                     ViewColumn::make('cover')
-                        ->view('filament.tables.columns.cover'),
+                        ->view('filament.admin.tables.columns.cover'),
                 ]),
                 Tables\Columns\TextColumn::make('score')
                     ->extraAttributes(['class' => 'hidden'])

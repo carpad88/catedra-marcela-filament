@@ -15,10 +15,6 @@
     animation: __where 0.5s ease-in-out alternate infinite;
 }
 
-.fi-sidebar {
-    border-right: 1px solid #eaeaea;
-}
-
-.fi-sidebar-nav {
-    @apply bg-white dark:bg-gray-900;
+.fi-simple-header > .fi-logo {
+    height: 6rem !important;
 }

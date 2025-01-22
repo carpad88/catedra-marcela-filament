@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Filament\Admin\Pages;
+namespace App\Filament\App\Pages;
 
 use App\Actions\Users\CreateUserWorks;
 use App\Enums\Status;
@@ -28,7 +28,7 @@ class AccountActivation extends SimplePage
 
     protected static ?string $navigationIcon = 'heroicon-o-document-text';
 
-    protected static string $view = 'filament.pages.account-activation';
+    protected static string $view = 'filament.app.pages.account-activation';
 
     protected static ?string $title = 'Activar cuenta';
 

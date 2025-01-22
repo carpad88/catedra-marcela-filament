@@ -39,7 +39,15 @@ class User extends Authenticatable implements FilamentUser, HasName, MustVerifyE
 
     public function canAccessPanel(Panel $panel): bool
     {
-        return true;
+        if ($panel->getId() === 'app') {
+            return $this->hasAnyRole(['student', 'teacher', 'super_admin']);
+        }
+
+        if ($panel->getId() === 'admin') {
+            return $this->hasAnyRole(['teacher', 'super_admin']);
+        }
+
+        return false;
     }
 
     public function groups(): BelongsToMany

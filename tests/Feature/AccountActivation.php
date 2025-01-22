@@ -31,7 +31,7 @@ it('activates account and resets password with valid data', function () {
         ->has(\App\Models\Group::factory()->hasProjects(2))
         ->create(['email_verified_at' => null]);
 
-    livewire(\App\Filament\Admin\Pages\AccountActivation::class, ['token' => Password::broker()->createToken($user)])
+    livewire(\App\Filament\App\Pages\AccountActivation::class, ['token' => Password::broker()->createToken($user)])
         ->fillForm([
             'email' => $user->email,
             'password' => 'newpassword',

@@ -13,7 +13,11 @@ class LoginResponse extends \Filament\Http\Responses\Auth\LoginResponse
         $user->update(['last_login_at' => now()]);
 
         if ($user->hasRole('student')) {
-            return redirect('/');
+            return redirect('/app');
+        }
+
+        if ($user->hasAnyRole(['teacher', 'super_admin'])) {
+            return redirect('/admin');
         }
 
         return parent::toResponse($request);
