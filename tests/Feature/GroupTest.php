@@ -1,11 +1,11 @@
 <?php
 
-use App\Filament\Resources\GroupResource;
-use App\Filament\Resources\GroupResource\Pages\ManageGroups;
-use App\Filament\Resources\GroupResource\RelationManagers\ProjectsRelationManager;
-use App\Filament\Resources\GroupResource\RelationManagers\UsersRelationManager;
-use App\Filament\Resources\GroupResource\RelationManagers\WorksRelationManager;
-use App\Filament\Resources\WorkResource;
+use App\Filament\Admin\Resources\GroupResource;
+use App\Filament\Admin\Resources\GroupResource\Pages\ManageGroups;
+use App\Filament\Admin\Resources\GroupResource\RelationManagers\ProjectsRelationManager;
+use App\Filament\Admin\Resources\GroupResource\RelationManagers\UsersRelationManager;
+use App\Filament\Admin\Resources\GroupResource\RelationManagers\WorksRelationManager;
+use App\Filament\Admin\Resources\WorkResource;
 use App\Models\Group;
 use App\Models\Project;
 use App\Models\User;
@@ -129,7 +129,7 @@ it('can render the users relation manager', function () {
 
     livewire(UsersRelationManager::class, [
         'ownerRecord' => $group,
-        'pageClass' => GroupResource\Pages\ViewGroup::class,
+        'pageClass' => \App\Filament\Admin\Resources\GroupResource\Pages\ViewGroup::class,
     ])
         ->assertSuccessful()
         ->assertTableActionExists('create')
@@ -147,7 +147,7 @@ it('can attach a user to a group', function () {
 
     livewire(UsersRelationManager::class, [
         'ownerRecord' => $group,
-        'pageClass' => GroupResource\Pages\ViewGroup::class,
+        'pageClass' => \App\Filament\Admin\Resources\GroupResource\Pages\ViewGroup::class,
     ])
         ->assertTableActionExists('attach')
         ->callTableAction('attach', data: ['recordId' => $user->getRouteKey()])
@@ -166,7 +166,7 @@ it('can remove a user from a group', function () {
 
     livewire(UsersRelationManager::class, [
         'ownerRecord' => $group,
-        'pageClass' => GroupResource\Pages\ViewGroup::class,
+        'pageClass' => \App\Filament\Admin\Resources\GroupResource\Pages\ViewGroup::class,
     ])
         ->mountTableAction('detach', $user)
         ->assertTableActionExists('detach')
@@ -183,7 +183,7 @@ it('can render the projects relation manager', function () {
 
     livewire(ProjectsRelationManager::class, [
         'ownerRecord' => $group,
-        'pageClass' => GroupResource\Pages\ViewGroup::class,
+        'pageClass' => \App\Filament\Admin\Resources\GroupResource\Pages\ViewGroup::class,
     ])
         ->assertSuccessful()
         ->assertTableActionExists('attach')
@@ -201,7 +201,7 @@ it('can attach a project to a group', function () {
 
     livewire(ProjectsRelationManager::class, [
         'ownerRecord' => $group,
-        'pageClass' => GroupResource\Pages\ViewGroup::class,
+        'pageClass' => \App\Filament\Admin\Resources\GroupResource\Pages\ViewGroup::class,
     ])
         ->assertTableActionExists('attach')
         ->callTableAction('attach', data: ['recordId' => $item->getRouteKey()])
@@ -221,7 +221,7 @@ it('can remove a project from a group', function () {
 
     livewire(ProjectsRelationManager::class, [
         'ownerRecord' => $group,
-        'pageClass' => GroupResource\Pages\ViewGroup::class,
+        'pageClass' => \App\Filament\Admin\Resources\GroupResource\Pages\ViewGroup::class,
     ])
         ->mountTableAction('detach', $item)
         ->assertTableActionExists('detach')
@@ -241,7 +241,7 @@ it('can render works relation manager', function () {
 
     livewire(WorksRelationManager::class, [
         'ownerRecord' => $group,
-        'pageClass' => GroupResource\Pages\ViewGroup::class,
+        'pageClass' => \App\Filament\Admin\Resources\GroupResource\Pages\ViewGroup::class,
     ])
         ->assertSuccessful()
         ->assertTableActionExists('rubric')
@@ -262,7 +262,7 @@ it('can create works in the relation manager', function () {
 
     livewire(WorksRelationManager::class, [
         'ownerRecord' => $group,
-        'pageClass' => GroupResource\Pages\ViewGroup::class,
+        'pageClass' => \App\Filament\Admin\Resources\GroupResource\Pages\ViewGroup::class,
     ])
         ->assertTableActionExists('create')
         ->callTableAction('create', data: [

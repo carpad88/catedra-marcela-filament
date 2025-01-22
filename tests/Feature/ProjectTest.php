@@ -1,8 +1,7 @@
 <?php
 
-use App\Filament\Resources\ProjectResource;
+use App\Filament\Admin\Resources\ProjectResource;
 use App\Models\Project;
-use App\Models\User;
 
 use function Pest\Livewire\livewire;
 

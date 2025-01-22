@@ -2,7 +2,7 @@
 
 namespace App\Actions\Projects;
 
-use App\Filament\Resources\ProjectResource;
+use App\Filament\Admin\Resources\ProjectResource;
 use App\Models\Project;
 use Filament\Notifications\Notification;
 use Illuminate\Database\Eloquent\Model;

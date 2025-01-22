@@ -1,6 +1,6 @@
 <?php
 
-use App\Filament\Resources\WorkResource;
+use App\Filament\Admin\Resources\WorkResource;
 use App\Models\Work;
 use Filament\Forms\Components\Repeater;
 
@@ -15,7 +15,7 @@ it('renders the works page and displays the correct columns and records', functi
         ->assertSuccessful()
         ->assertSee('Trabajos');
 
-    livewire(WorkResource\Pages\ListWorks::class)
+    livewire(\App\Filament\Admin\Resources\WorkResource\Pages\ListWorks::class)
         ->assertTableColumnExists('group.title')
         ->assertTableColumnExists('cover')
         ->assertTableColumnExists('project.title')
@@ -44,7 +44,7 @@ it('allows authorized users to create a new work', function () {
 
     $work = Work::factory()->make();
 
-    livewire(WorkResource\Pages\ListWorks::class)
+    livewire(\App\Filament\Admin\Resources\WorkResource\Pages\ListWorks::class)
         ->assertActionExists('create')
         ->assertActionEnabled('create')
         ->callAction('create', [
@@ -68,7 +68,7 @@ it('allows authorized users to create a new work', function () {
 it('rejects invalid data during work creation', function () {
     actingAsWithPermissions('work', ['view', 'create']);
 
-    livewire(WorkResource\Pages\ListWorks::class)
+    livewire(\App\Filament\Admin\Resources\WorkResource\Pages\ListWorks::class)
         ->assertActionExists('create')
         ->assertActionEnabled('create')
         ->callAction('create', [
@@ -82,7 +82,7 @@ it('rejects invalid data during work creation', function () {
 it('prevents unauthorized users from seeing the create action', function () {
     actingAsWithPermissions('work', ['view']);
 
-    livewire(WorkResource\Pages\ListWorks::class)
+    livewire(\App\Filament\Admin\Resources\WorkResource\Pages\ListWorks::class)
         ->assertActionDisabled('create');
 });
 
@@ -95,7 +95,7 @@ it('allows teachers to update any work in their groups', function () {
 
     test()->get(WorkResource::getUrl('edit', ['record' => $work]))->assertSuccessful();
 
-    livewire(WorkResource\Pages\EditWork::class, [
+    livewire(\App\Filament\Admin\Resources\WorkResource\Pages\EditWork::class, [
         'record' => $work->getRouteKey(),
     ])
         ->assertFormSet([
@@ -161,7 +161,7 @@ it('allows users to update their own works', function () {
 
     $undoRepeaterFake = Repeater::fake();
 
-    livewire(WorkResource\Pages\EditWork::class, [
+    livewire(\App\Filament\Admin\Resources\WorkResource\Pages\EditWork::class, [
         'record' => $work->getRouteKey(),
     ])
         ->assertFormSet([
@@ -205,7 +205,7 @@ it('allows teachers to delete any work in their groups', function () {
     $group = \App\Models\Group::factory()->create(['owner_id' => $teacher->id]);
     $work = Work::factory()->create(['group_id' => $group->id]);
 
-    livewire(WorkResource\Pages\ListWorks::class)
+    livewire(\App\Filament\Admin\Resources\WorkResource\Pages\ListWorks::class)
         ->assertTableActionExists('delete')
         ->callTableAction('delete', $work);
 
@@ -217,6 +217,6 @@ it('prevents unauthorized users from deleting a project', function () {
 
     $work = Work::factory()->create();
 
-    livewire(WorkResource\Pages\ListWorks::class)
+    livewire(\App\Filament\Admin\Resources\WorkResource\Pages\ListWorks::class)
         ->assertTableActionDisabled('delete', $work);
 });

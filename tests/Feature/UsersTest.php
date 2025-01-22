@@ -1,9 +1,9 @@
 <?php
 
-use App\Filament\Resources\UserResource;
-use App\Filament\Resources\UserResource\Pages\ManageUsers;
-use App\Filament\Resources\UserResource\Pages\ViewUser;
-use App\Filament\Resources\UserResource\RelationManagers\WorksRelationManager;
+use App\Filament\Admin\Resources\UserResource;
+use App\Filament\Admin\Resources\UserResource\Pages\ManageUsers;
+use App\Filament\Admin\Resources\UserResource\Pages\ViewUser;
+use App\Filament\Admin\Resources\UserResource\RelationManagers\WorksRelationManager;
 use App\Models\Group;
 use App\Models\User;
 use Spatie\Permission\Models\Role;
