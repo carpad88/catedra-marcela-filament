@@ -25,6 +25,7 @@ class AppPanelProvider extends PanelProvider
             ->id('app')
             ->path('app')
             ->login()
+            ->profile(isSimple: false)
             ->passwordReset()
             ->viteTheme('resources/css/filament/app/theme.css')
             ->colors([
