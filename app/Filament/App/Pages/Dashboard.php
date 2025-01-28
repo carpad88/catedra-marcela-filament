@@ -4,7 +4,9 @@ namespace App\Filament\App\Pages;
 
 class Dashboard extends \Filament\Pages\Dashboard
 {
-    protected static bool $shouldRegisterNavigation = false;
+    protected static string $view = 'filament.app.pages.dashboard';
 
-    protected static ?string $title = 'Mis proyectos';
+    protected static ?string $title = 'Cátedra';
+
+    protected ?string $heading = '';
 }

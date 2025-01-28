@@ -157,9 +157,8 @@ class GradeWork extends EditRecord
 
     protected function afterSave(): void
     {
-        $this->record->rubrics()->sync($this->criterias->map(fn ($rubric) => [
-            'criteria_id' => $rubric['id'],
-            'level_id' => $rubric['level_id'],
+        $this->record->rubrics()->sync($this->criterias->mapWithKeys(fn ($rubric) => [
+            $rubric['id'] => ['level_id' => $rubric['level_id']],
         ]));
 
         $this->record->update([

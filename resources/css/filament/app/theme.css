@@ -18,3 +18,44 @@
 .fi-simple-header > .fi-logo {
     height: 6rem !important;
 }
+
+.fi-main:has(> .catedra:first-child)  {
+    max-width: initial;
+    margin: 0 !important;
+    padding: 0;
+}
+
+.md-body {
+    h2 {
+        margin: 4rem 0 2rem 0;
+        font-weight: bold;
+        color: red;
+    }
+
+    h3 {
+        margin: 2rem 0 1rem 0;
+        font-weight: bold;
+        @apply text-xl;
+    }
+
+    h4 ~ p {
+        font-size: 0.8rem;
+        line-height: 1.3rem;
+        margin-bottom: 0.5rem;
+    }
+
+    p {
+        line-height: 1.8rem;
+        margin-bottom: 1rem;
+    }
+
+    p > img {
+        width: 100%;
+    }
+
+    ul > li {
+        list-style: disc;
+        margin-left: 3rem;
+        margin-bottom: 1rem;
+    }
+}

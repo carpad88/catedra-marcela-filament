@@ -87,4 +87,11 @@ class Work extends Model
     {
         return $this->hasMany(Rubric::class)->with('level:id,score');
     }
+
+    public function scopeRandomPublic($query, $limit = 3)
+    {
+        return $query->where('visibility', Visibility::Public)
+            ->inRandomOrder()
+            ->limit($limit);
+    }
 }

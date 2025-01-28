@@ -2,6 +2,7 @@
 
 namespace App\Policies;
 
+use App\Enums\Visibility;
 use App\Models\User;
 use App\Models\Work;
 use Illuminate\Auth\Access\HandlesAuthorization;
@@ -23,6 +24,10 @@ class WorkPolicy
      */
     public function view(User $user, Work $work): bool
     {
+        if ($user->hasRole('student')) {
+            return $user->can('view_work') && ($user->id === $work->user_id || $work->visibility === Visibility::Public);
+        }
+
         return $user->can('view_work');
     }
 

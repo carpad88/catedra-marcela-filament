@@ -23,7 +23,11 @@ class ProjectPolicy
      */
     public function view(User $user, Project $project): bool
     {
-        return $user->can('view_project') && $user->id == $project->owner_id;
+        if ($user->hasRole('teacher')) {
+            return $user->can('view_project') && $user->id === $project->owner_id;
+        }
+
+        return $user->can('view_project') && $project->groups->intersect($user->groups)->isNotEmpty();
     }
 
     /**
