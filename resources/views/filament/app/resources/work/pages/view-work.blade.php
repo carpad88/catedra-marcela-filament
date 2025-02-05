@@ -6,7 +6,7 @@
 
         <div>
             <div class="bg-cover bg-center {{ !$work->cover ? 'bg-gray-200' : ''}}"
-                 style="height: 25rem; background-image: url('{{ asset($work->cover) }}')">
+                 style="height: 25rem; background-image: url('{{ Storage::url($work->cover) }}')">
             </div>
 
             <div class="w-1/2 h-full bg-white p-8 pb-20 transform -translate-y-32">
@@ -24,7 +24,7 @@
 
             <div class="grid grid-cols-3 gap-4 -translate-y-32">
                 @foreach($work->images as $image)
-                    <img src="{{ asset($image) }}" alt="Image" class="object-cover h-64 w-full">
+                    <img src="{{ Storage::url($image) }}" alt="Image" class="object-cover h-64 w-full">
                 @endforeach
             </div>
 

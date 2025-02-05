@@ -25,6 +25,7 @@ class GradeWork extends EditRecord
     {
         return [
             $this->getSaveFormAction()
+                ->visible($this->shouldAllowGrade())
                 ->formId('form'),
         ];
     }
@@ -43,6 +44,7 @@ class GradeWork extends EditRecord
     {
         return $form
             ->columns(3)
+            ->disabled(! $this->shouldAllowGrade())
             ->schema([
                 Components\Repeater::make('rubrics')
                     ->label('Criterios de evaluación')
@@ -109,5 +111,10 @@ class GradeWork extends EditRecord
         $this->record->update([
             'score' => $this->record->scores->sum(fn ($rubric) => $rubric->level->score),
         ]);
+    }
+
+    protected function shouldAllowGrade(): bool
+    {
+        return now() < $this->record->project->finished_at->addDays(3);
     }
 }
