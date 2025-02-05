@@ -5,7 +5,7 @@
     <h3 class="mb-2">{{ $work->group->period }} | {{ $work->user->name }}</h3>
 
     @if($work->cover)
-        <div style="background-image: url('{{ asset($work->cover ) }}')"
+        <div style="background-image: url('{{ Storage::url($work->cover ) }}')"
              class="bg-cover bg-center bg-no-repeat w-full h-64 mb-4"></div>
     @else
         <div style="background-image: url('{{ asset('images/resources.svg' ) }}')"

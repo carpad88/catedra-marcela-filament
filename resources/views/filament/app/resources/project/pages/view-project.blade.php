@@ -20,7 +20,7 @@
         <div class="mx-auto max-w-6xl pb-24">
             <div class="mb-8 py-24 px-12 flex items-center transform -translate-x-12">
                 <div class="w-5/12 transform translate-x-24 bg-blue-200 h-64 bg-cover"
-                     style="background-image: url('{{ asset($project->cover) }}')"></div>
+                     style="background-image: url('{{ Storage::url($project->cover) }}')"></div>
                 <div class="w-7/12 bg-white py-32 pl-32 pr-8">
                     {{ $project->description }}
                 </div>
@@ -46,7 +46,7 @@
                     <!-- TODO: get works that shared common categories -->
                     @foreach($project->works()->randomPublic()->get() as $work)
                         @if($work->cover)
-                            <img src="{{ asset($work->cover ) }}" alt=""
+                            <img src="{{ Storage::url($work->cover ) }}" alt=""
                                  class="w-full mb-8">
                         @endif
                     @endforeach

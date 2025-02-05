@@ -14,7 +14,7 @@
 
     @if($getState())
         <div class="h-60">
-            <img src="{{ asset($getState()) }}" alt="image" class="h-full w-full object-cover rounded-md">
+            <img src="{{ Storage::url($getState()) }}" alt="image" class="h-full w-full object-cover rounded-md">
         </div>
     @endif
 </div>
