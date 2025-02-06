@@ -8,7 +8,7 @@ use function Pest\Livewire\livewire;
 it('can access activation page with valid signature', function () {
     $user = User::factory()->create(['email_verified_at' => null]);
 
-    test()->get((new \App\Notifications\WelcomeEmail($user))->getActivationUrl())
+    test()->get((new \App\Notifications\InvitationEmail($user))->getActivationUrl())
         ->assertSuccessful()
         ->assertSee('Activar cuenta')
         ->assertSee($user->email);

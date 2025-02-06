@@ -1,4 +1,4 @@
-<x-mail::message>
+<x-mail::message title="Invitación">
 Hola **{{  $user->first_name }}**,
 
 Has sido invitado a formar parte de la comunidad de Cátedra Marcela

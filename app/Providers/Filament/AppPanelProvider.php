@@ -2,6 +2,7 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\App\Pages\Auth\RequestPasswordReset;
 use DiogoGPinto\AuthUIEnhancer\AuthUIEnhancerPlugin;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
@@ -26,7 +27,7 @@ class AppPanelProvider extends PanelProvider
             ->path('app')
             ->login()
             ->profile(isSimple: false)
-            ->passwordReset()
+            ->passwordReset(RequestPasswordReset::class)
             ->viteTheme('resources/css/filament/app/theme.css')
             ->colors([
                 'primary' => Color::Neutral,

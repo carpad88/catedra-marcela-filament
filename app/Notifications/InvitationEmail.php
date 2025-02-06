@@ -9,7 +9,7 @@ use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 use URL;
 
-class WelcomeEmail extends Notification implements ShouldQueue
+class InvitationEmail extends Notification implements ShouldQueue
 {
     use Queueable;
 
@@ -43,11 +43,10 @@ class WelcomeEmail extends Notification implements ShouldQueue
     {
         return (new MailMessage)
             ->subject('Registro en Cátedra Marcela')
-            ->markdown('mail.auth.welcome', [
+            ->markdown('mail.auth.invitation', [
                 'url' => $this->url,
                 'user' => $this->user,
-            ]
-            );
+            ]);
     }
 
     /**
