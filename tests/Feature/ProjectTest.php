@@ -65,6 +65,7 @@ it('allows authorized users to create a new project', function () {
             'goals' => $newProjectData['goals'],
             'activities' => $newProjectData['activities'],
             'conditions' => $newProjectData['conditions'],
+            'category_id' => \App\Models\Tag::factory()->create(['type' => 'Proyectos'])->id,
         ])
         ->call('create')
         ->assertHasNoFormErrors();

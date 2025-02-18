@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Models\Project;
+use App\Models\Tag;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -22,6 +23,7 @@ class ProjectFactory extends Factory
     {
         return [
             'owner_id' => User::factory(),
+            'category_id' => Tag::factory(),
             'cover' => $this->faker->url(),
             'title' => $this->faker->sentence(4),
             'description' => $this->faker->text(),

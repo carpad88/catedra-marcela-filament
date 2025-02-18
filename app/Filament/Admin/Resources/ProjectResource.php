@@ -9,6 +9,7 @@ use App\Enums\Status;
 use App\Filament\Admin\Resources\ProjectResource\RelationManagers\CriteriasRelationManager;
 use App\Models\Group;
 use App\Models\Project;
+use App\Models\Tag;
 use Filament\Forms\Components;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -57,6 +58,14 @@ class ProjectResource extends Resource
                             ->label('Entrega')
                             ->native(false)
                             ->default(now()->addDays(10))
+                            ->required(),
+                        Components\Select::make('category_id')
+                            ->label('Categoría')
+                            ->relationship('category', 'name')
+                            ->preload()
+                            ->options(fn () => Tag::where('type', 'Proyectos')
+                                ->pluck('name', 'id')
+                            )
                             ->required(),
                         Components\ToggleButtons::make('status')
                             ->label('¿Estado del proyecto?')
