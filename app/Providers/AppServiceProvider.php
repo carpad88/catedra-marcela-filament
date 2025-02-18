@@ -5,7 +5,10 @@ namespace App\Providers;
 use Filament\Forms;
 use Filament\Http\Responses\Auth\Contracts\LoginResponse;
 use Filament\Support\Facades\FilamentIcon;
+use Filament\Support\Facades\FilamentView;
+use Filament\View\PanelsRenderHook;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 
@@ -43,5 +46,10 @@ class AppServiceProvider extends ServiceProvider
             'actions::delete-action' => 'phosphor-trash-duotone',
             'actions::detach-action' => 'phosphor-user-minus-duotone',
         ]);
+
+        FilamentView::registerRenderHook(
+            PanelsRenderHook::SIDEBAR_FOOTER,
+            fn (): string => Blade::render("<div class='text-xs text-gray-400 p-2'>{{ app()->version() }} :: {{ \Composer\InstalledVersions::getPrettyVersion('filament/filament') }}</div>"),
+        );
     }
 }
