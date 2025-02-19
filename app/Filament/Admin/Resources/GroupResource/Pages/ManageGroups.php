@@ -2,8 +2,10 @@
 
 namespace App\Filament\Admin\Resources\GroupResource\Pages;
 
+use App\Enums\Status;
 use App\Filament\Admin\Resources\GroupResource;
 use Filament\Actions;
+use Filament\Resources\Components\Tab;
 use Filament\Resources\Pages\ManageRecords;
 
 class ManageGroups extends ManageRecords
@@ -20,6 +22,19 @@ class ManageGroups extends ManageRecords
 
                     return $data;
                 }),
+        ];
+    }
+
+    public function getTabs(): array
+    {
+        return [
+            'active' => Tab::make('Activos')
+                ->icon('phosphor-check-circle-duotone')
+                ->modifyQueryUsing(fn ($query) => $query->where('status', Status::Active)),
+            'archived' => Tab::make('Archivados')
+                ->icon('phosphor-archive-duotone')
+                ->modifyQueryUsing(fn ($query) => $query->where('status', Status::Archived)),
+            'all' => Tab::make('Todos'),
         ];
     }
 }

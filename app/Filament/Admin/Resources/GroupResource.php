@@ -69,7 +69,6 @@ class GroupResource extends Resource
     {
         return $table
             ->modifyQueryUsing(fn ($query) => $query->owned())
-            ->defaultPaginationPageOption(25)
             ->columns([
                 Tables\Columns\TextColumn::make('title')
                     ->label('Descripción'),
@@ -85,27 +84,29 @@ class GroupResource extends Resource
                         'A' => 'primary',
                         'B' => 'warning'
                     }),
-                Tables\Columns\TextColumn::make('status')
-                    ->label('Estado')
-                    ->badge(Status::class),
                 Tables\Columns\TextColumn::make('owner.name')
                     ->label('Docente')
-                    ->visible(fn () => auth()->user()->hasRole('super_admin')),
+                    ->visible(fn () => auth()->user()->hasRole('super_admin'))
+                    ->toggledHiddenByDefault()
+                    ->toggleable(),
                 Tables\Columns\TextColumn::make('projects_count')
                     ->counts('projects')
                     ->label('Proyectos')
                     ->badge()
-                    ->alignCenter(),
+                    ->alignCenter()
+                    ->toggleable(),
                 Tables\Columns\TextColumn::make('students_count')
                     ->counts('students')
                     ->label('Estudiantes')
                     ->badge()
-                    ->alignCenter(),
+                    ->alignCenter()
+                    ->toggleable(),
                 Tables\Columns\TextColumn::make('works_count')
                     ->counts('works')
                     ->label('Trabajos')
                     ->badge()
-                    ->alignCenter(),
+                    ->alignCenter()
+                    ->toggleable(),
                 Tables\Columns\TextColumn::make('works_avg_score')
                     ->label('Promedio')
                     ->color(Color::Green)
