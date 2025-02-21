@@ -2,6 +2,7 @@
     <div class="mx-auto max-w-6xl pt-16">
         @php
             $work = $this->getRecord();
+            $similarProjects = \App\Models\Work::randomPublic(3, $work->project->category_id)->get();
         @endphp
 
         <div>
@@ -40,8 +41,7 @@
             </div>
 
             <div class="grid grid-cols-3">
-                <!-- TODO: get works that shared common categories -->
-                @foreach($work->project->works()->randomPublic()->get() as $work)
+                @foreach($similarProjects as $work)
                     <x-work-card :$work/>
                 @endforeach
             </div>

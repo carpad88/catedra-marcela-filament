@@ -42,6 +42,7 @@ class AppServiceProvider extends ServiceProvider
             'panels::user-menu.profile-item' => 'phosphor-user-circle-duotone',
             'panels::user-menu.logout-button' => 'phosphor-sign-out-duotone',
             'actions::action-group' => 'phosphor-dots-three-outline-vertical-duotone',
+            'actions::view-action' => 'phosphor-eye-duotone',
             'actions::edit-action' => 'phosphor-pencil-duotone',
             'actions::delete-action' => 'phosphor-trash-duotone',
             'actions::detach-action' => 'phosphor-user-minus-duotone',

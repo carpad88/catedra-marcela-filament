@@ -2,6 +2,7 @@
 
 namespace App\Filament\App\Resources;
 
+use App\Enums\Status;
 use App\Filament\App\Resources\ProjectResource\Pages;
 use App\Models\Project;
 use Filament\Forms\Form;
@@ -26,13 +27,25 @@ class ProjectResource extends Resource
 
     public static function table(Table $table): Table
     {
+        $isStudent = auth()->user()->hasRole(['student']);
+
         return $table
-            ->modifyQueryUsing(fn ($query) => $query
-                ->whereHas('groups', function ($query) {
-                    $query->whereIn('id', auth()->user()->groups->pluck('id'));
-                })
-                ->orderBy('finished_at', 'desc')
-            );
+            ->when($isStudent, function ($table) {
+                $table
+                    ->modifyQueryUsing(fn ($query) => $query
+                        ->whereHas('groups', function ($query) {
+                            $query->whereIn('id', auth()->user()->groups->pluck('id'));
+                        })
+                        ->orderBy('finished_at', 'desc')
+                    );
+            })
+            ->when(! $isStudent, function ($table) {
+                $table
+                    ->modifyQueryUsing(fn ($query) => $query
+                        ->where('status', Status::Active)
+                        ->orderBy('finished_at', 'desc')
+                    );
+            });
     }
 
     public static function getRelations(): array

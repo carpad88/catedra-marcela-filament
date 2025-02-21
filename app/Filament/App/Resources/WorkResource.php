@@ -23,9 +23,15 @@ class WorkResource extends Resource
 
     protected static ?string $navigationIcon = 'phosphor-images-duotone';
 
+    public static function canAccess(): bool
+    {
+        return auth()->user()->hasRole('student');
+    }
+
     public static function form(Form $form): Form
     {
         return $form
+            ->disabled(fn (Work $record) => $record->project->finished_at < now())
             ->schema([
                 Forms\Components\Section::make()
                     ->columns(3)
@@ -103,10 +109,15 @@ class WorkResource extends Resource
                 //
             ])
             ->actions([
+                Tables\Actions\ViewAction::make()
+                    ->label('Previsualizar')
+                    ->visible(fn (Work $record) => $record->images),
                 Tables\Actions\EditAction::make()
                     ->label('Agregar imágenes')
                     ->icon('phosphor-images-duotone')
-                    ->visible(fn () => auth()->user()->can('update_work')),
+                    ->visible(fn (Work $record) => auth()->user()->can('update_work')
+                        && now() < $record->project->finished_at->addDays(3)
+                    ),
                 Tables\Actions\Action::make('rubric')
                     ->label('Rúbrica')
                     ->icon('phosphor-exam-duotone')

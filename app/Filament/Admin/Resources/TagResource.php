@@ -8,7 +8,6 @@ use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
-use Filament\Tables\Grouping\Group;
 use Filament\Tables\Table;
 
 class TagResource extends Resource
@@ -45,12 +44,6 @@ class TagResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-            ->defaultGroup('type')
-            ->groupingSettingsHidden()
-            ->groups([
-                Group::make('type')
-                    ->titlePrefixedWithLabel(false),
-            ])
             ->columns([
                 Tables\Columns\TextColumn::make('name')
                     ->label('Nombre'),

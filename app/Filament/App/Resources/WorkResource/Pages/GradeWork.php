@@ -25,8 +25,8 @@ class GradeWork extends EditRecord
     {
         return [
             $this->getSaveFormAction()
-                ->visible($this->shouldAllowGrade())
-                ->formId('form'),
+                ->formId('form')
+                ->visible($this->shouldAllowGrade()),
         ];
     }
 
@@ -47,8 +47,9 @@ class GradeWork extends EditRecord
             ->disabled(! $this->shouldAllowGrade())
             ->schema([
                 Components\Repeater::make('rubrics')
-                    ->label('Criterios de evaluación')
+                    ->hiddenLabel()
                     ->columnSpan('full')
+                    ->collapsible()
                     ->deletable(false)
                     ->orderColumn(false)
                     ->addable(false)
@@ -85,6 +86,14 @@ class GradeWork extends EditRecord
                             ->columns(4),
                     ]),
             ]);
+    }
+
+    protected function getFormActions(): array
+    {
+        return $this->shouldAllowGrade() ? [
+            $this->getSaveFormAction(),
+            $this->getCancelFormAction(),
+        ] : [];
     }
 
     protected function mutateFormDataBeforeFill(array $data): array

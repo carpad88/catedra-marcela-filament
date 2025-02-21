@@ -2,6 +2,8 @@
     @php
         setlocale(LC_ALL, 'es_ES');
         $project = $this->getRecord();
+
+        $randomWorks = \App\Models\Work::randomPublic(6, $project->category_id)->get();
     @endphp
 
     <div class="py-24 bg-white border-b border-gray-300">
@@ -43,8 +45,7 @@
                     </div>
                 </div>
                 <div class="col-span-2">
-                    <!-- TODO: get works that shared common categories -->
-                    @foreach($project->works()->randomPublic()->get() as $work)
+                    @foreach($randomWorks->take(3) as $work)
                         @if($work->cover)
                             <img src="{{ Storage::url($work->cover ) }}" alt=""
                                  class="w-full mb-8">
@@ -64,9 +65,12 @@
             </div>
 
             <div class="grid grid-cols-3">
-                <!-- TODO: get works that shared common categories -->
-                @foreach($project->works()->randomPublic()->get() as $work)
-                    <x-work-card :$work />
+                @php
+                    $finishedProjects = count($randomWorks) > 3 ? $randomWorks->skip(3) : $randomWorks;
+                @endphp
+
+                @foreach($finishedProjects as $work)
+                    <x-work-card :$work/>
                 @endforeach
             </div>
         </div>

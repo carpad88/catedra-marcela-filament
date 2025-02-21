@@ -9,7 +9,9 @@ use function Pest\Livewire\livewire;
 it('renders the tags page', function () {
     actingAsWithPermissions('tag', ['view'], 'teacher');
 
-    Tag::factory(2)->create();
+    Tag::factory(2)->create([
+        'type' => \App\Enums\RootTagsEnum::Projects->getLabel(),
+    ]);
 
     test()->get(TagResource::getUrl())
         ->assertSuccessful();
@@ -60,7 +62,9 @@ it('prevents unauthorized users from seeing the create action', function () {
 it('allows authorized users to update a tag', function () {
     actingAsWithPermissions('tag', ['view', 'update']);
 
-    $tag = Tag::factory()->create();
+    $tag = Tag::factory()->create([
+        'type' => \App\Enums\RootTagsEnum::Projects->getLabel(),
+    ]);
     $newTitle = 'New Title';
 
     livewire(ManageTags::class)
@@ -85,7 +89,9 @@ it('prevents unauthorized users from seeing the edit action', function () {
 it('allows authorized users to delete a tag', function () {
     actingAsWithPermissions('tag', ['view', 'delete']);
 
-    $tag = Tag::factory()->create();
+    $tag = Tag::factory()->create([
+        'type' => \App\Enums\RootTagsEnum::Projects->getLabel(),
+    ]);
 
     livewire(ManageTags::class)
         ->callTableAction('delete', $tag->getRouteKey())

@@ -14,7 +14,8 @@ class EditWork extends EditRecord
     {
         return [
             $this->getSaveFormAction()
-                ->formId('form'),
+                ->formId('form')
+                ->visible($this->shouldAllowEdit()),
         ];
     }
 
@@ -26,5 +27,18 @@ class EditWork extends EditRecord
     protected function getRedirectUrl(): ?string
     {
         return WorkResource::getUrl();
+    }
+
+    protected function getFormActions(): array
+    {
+        return $this->shouldAllowEdit() ? [
+            $this->getSaveFormAction(),
+            $this->getCancelFormAction(),
+        ] : [];
+    }
+
+    protected function shouldAllowEdit(): bool
+    {
+        return $this->record->project->finished_at > now();
     }
 }
