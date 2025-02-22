@@ -17,8 +17,6 @@ it('renders the projects page and displays only owned projects', function () {
     livewire(ProjectResource\Pages\ListProjects::class)
         ->assertTableColumnExists('title')
         ->assertTableColumnExists('status')
-        ->assertTableColumnExists('started_at')
-        ->assertTableColumnExists('finished_at')
         ->assertCountTableRecords(2)
         ->assertCanSeeTableRecords($userProjects);
 
@@ -59,8 +57,6 @@ it('allows authorized users to create a new project', function () {
         ->fillForm([
             'cover' => [$newProjectData['cover']],
             'title' => $newProjectData['title'],
-            'started_at' => $newProjectData['started_at'],
-            'finished_at' => $newProjectData['finished_at'],
             'description' => $newProjectData['description'],
             'goals' => $newProjectData['goals'],
             'activities' => $newProjectData['activities'],
@@ -99,14 +95,10 @@ it('allows authorized users to update a project', function () {
     ])
         ->assertFormSet([
             'title' => $project->title,
-            'started_at' => $project->started_at,
-            'finished_at' => $project->finished_at,
         ])
         ->fillForm([
             'cover' => [$project->cover],
             'title' => $newTitle,
-            'started_at' => now(),
-            'finished_at' => now()->addDays(15),
             'description' => $project->description,
             'goals' => $project->goals,
             'activities' => $project->activities,

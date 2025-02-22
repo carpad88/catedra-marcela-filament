@@ -156,7 +156,7 @@ it('renders the works relation manager and displays the correct records', functi
     actingAsWithPermissions('user', ['view']);
 
     $group = Group::factory()
-        ->hasProjects(3)
+        ->withProjects(3)
         ->create(['owner_id' => auth()->id()]);
     $user = User::factory()->create();
     $user->groups()->attach($group);

@@ -9,6 +9,7 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
+use Filament\Tables\Actions\AttachAction;
 use Filament\Tables\Columns;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -36,9 +37,14 @@ class ProjectsRelationManager extends RelationManager
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('title')
-                    ->required()
-                    ->maxLength(255),
+                Forms\Components\DatePicker::make('started_at')
+                    ->label('Fecha de inicio')
+                    ->native(false)
+                    ->required(),
+                Forms\Components\DatePicker::make('finished_at')
+                    ->label('Fecha de entrega')
+                    ->native(false)
+                    ->required(),
             ]);
     }
 
@@ -84,6 +90,23 @@ class ProjectsRelationManager extends RelationManager
                     ->preloadRecordSelect()
                     ->recordSelectOptionsQuery(fn ($query) => $query->whereStatus('active'))
                     ->recordSelect(fn (Select $select) => $select->searchable(false))
+                    ->form(fn (AttachAction $action): array => [
+                        $action->getRecordSelect(),
+                        Forms\Components\Split::make([
+                            Forms\Components\DatePicker::make('started_at')
+                                ->columnSpan(1)
+                                ->label('Fecha de inicio')
+                                ->native(false)
+                                ->default(now())
+                                ->required(),
+                            Forms\Components\DatePicker::make('finished_at')
+                                ->columnSpan(1)
+                                ->label('Fecha de entrega')
+                                ->native(false)
+                                ->default(now()->addDays(10))
+                                ->required(),
+                        ]),
+                    ])
                     ->after(function ($record) {
                         $this->getOwnerRecord()
                             ->students()
@@ -99,6 +122,8 @@ class ProjectsRelationManager extends RelationManager
                     }),
             ])
             ->actions([
+                Tables\Actions\EditAction::make()
+                    ->modalWidth('lg'),
                 Tables\Actions\DetachAction::make()
                     ->visible(fn () => $this->getOwnerRecord()->status == Status::Active)
                     ->icon('phosphor-calendar-minus-duotone')

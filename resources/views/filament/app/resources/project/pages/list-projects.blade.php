@@ -12,16 +12,19 @@
                     <div class="p-4 transition group-hover:-translate-x-4 group-hover:-translate-y-4
                         group-hover:border-l group-hover:border-t group-hover:border-red-600
                     ">
-                        <div class="flex justify-between items-start">
-                            <div>
-                                <div class="text-xs uppercase font-extralight">Fecha de entrega</div>
-                                <h3 class="font-medium">{{ $project->finished_at->locale('es')->isoFormat('D [de] MMMM, YYYY') }}</h3>
+                        @if(auth()->user()->hasRole('student'))
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <div class="text-xs uppercase font-extralight">Fecha de entrega</div>
+                                    <h3 class="font-medium">{{ $project->finished_at->locale('es')->isoFormat('D [de] MMMM, YYYY') }}</h3>
+                                </div>
+
+                                <div class="flex items-center">
+                                    <x-phosphor-arrow-square-out class="size-5 mr-1"/>
+                                    <p>Ver proyecto</p>
+                                </div>
                             </div>
-                            <div class="flex items-center">
-                                <x-phosphor-arrow-square-out class="size-5 mr-1"/>
-                                <p>Ver proyecto</p>
-                            </div>
-                        </div>
+                        @endif
                         <h2 class="font-display font-bold text-4xl leading-none my-12 ">{{ $project->title }}</h2>
                         <div class="h-64 bg-cover"
                              style="background-image: url('{{ Storage::url($project->cover) }}')">

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\Visibility;
 use App\Traits\CrudBy;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -19,6 +20,8 @@ class Work extends Model
         return [
             'images' => 'array',
             'visibility' => Visibility::class,
+            'finished' => 'datetime',
+            'started' => 'datetime',
         ];
     }
 
@@ -101,5 +104,19 @@ class Work extends Model
             ->where('visibility', Visibility::Public)
             ->inRandomOrder()
             ->limit($limit);
+    }
+
+    public function getStartedAttribute(): ?Carbon
+    {
+        $date = $this->project?->groups->firstWhere('id', $this->group_id)?->pivot->started_at;
+
+        return $date ? Carbon::parse($date) : null;
+    }
+
+    public function getFinishedAttribute(): ?Carbon
+    {
+        $date = $this->project?->groups->firstWhere('id', $this->group_id)?->pivot->finished_at;
+
+        return $date ? Carbon::parse($date) : null;
     }
 }

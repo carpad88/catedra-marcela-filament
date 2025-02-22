@@ -36,14 +36,20 @@ class ProjectResource extends Resource
                         ->whereHas('groups', function ($query) {
                             $query->whereIn('id', auth()->user()->groups->pluck('id'));
                         })
-                        ->orderBy('finished_at', 'desc')
+                        ->join('group_project', 'projects.id', '=', 'group_project.project_id')
+                        ->select('projects.*', 'group_project.finished_at')
+                        ->orderBy('group_project.finished_at', 'desc')
+                        ->distinct('projects.id')
                     );
             })
             ->when(! $isStudent, function ($table) {
                 $table
                     ->modifyQueryUsing(fn ($query) => $query
                         ->where('status', Status::Active)
-                        ->orderBy('finished_at', 'desc')
+                        ->join('group_project', 'projects.id', '=', 'group_project.project_id')
+                        ->select('projects.*', 'group_project.finished_at')
+                        ->orderBy('group_project.finished_at', 'desc')
+                        ->distinct('projects.id')
                     );
             });
     }

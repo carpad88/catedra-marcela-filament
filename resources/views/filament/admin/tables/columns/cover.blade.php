@@ -8,7 +8,7 @@
         </div>
         <div>
             <h3 class="font-bold text-lg">{{ $work->project->title }}</h3>
-            <p class="text-sm text-gray-500">{{ $work->project->finished_at->format('F d, Y') }}</p>
+            <p class="text-sm text-gray-500">{{ $work->finished->format('F d, Y') }}</p>
         </div>
     </div>
 

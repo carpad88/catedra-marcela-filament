@@ -30,8 +30,6 @@ class ProjectFactory extends Factory
             'goals' => $this->faker->text(),
             'activities' => $this->faker->text(),
             'conditions' => $this->faker->text(),
-            'started_at' => $this->faker->dateTime(),
-            'finished_at' => $this->faker->dateTime(),
             'status' => $this->faker->randomElement(['active', 'archived']),
         ];
     }

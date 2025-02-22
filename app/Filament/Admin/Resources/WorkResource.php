@@ -4,6 +4,7 @@ namespace App\Filament\Admin\Resources;
 
 use App\Actions\BulkDeleteRecords;
 use App\Actions\DeleteRecord;
+use App\Enums\Visibility;
 use App\Models\Group;
 use App\Models\Project;
 use App\Models\User;
@@ -34,7 +35,8 @@ class WorkResource extends Resource
         return $form
             ->schema([
                 Components\Section::make()
-                    ->columns(3)
+                    ->columns(1)
+                    ->columnSpan(fn ($operation) => $operation == 'create' ? 2 : 1)
                     ->schema([
                         Components\Select::make('group_id')
                             ->label('Grupo')
@@ -72,9 +74,16 @@ class WorkResource extends Resource
                     ]),
 
                 Components\Section::make()
-                    ->columns(3)
+                    ->columnSpan(1)
                     ->hiddenOn('create')
                     ->schema([
+                        Components\Select::make('visibility')
+                            ->label('¿Quién puede ver este trabajo?')
+                            ->options([
+                                Visibility::Private->value => 'Solo el estudiante y el profesor',
+                                Visibility::Group->value => 'Alumnos del grupo',
+                                Visibility::Public->value => 'Todo el mundo',
+                            ]),
                         Components\FileUpload::make('cover')
                             ->label('Portada')
                             ->columnSpan(1)
@@ -83,9 +92,13 @@ class WorkResource extends Resource
                             ->optimize('webp')
                             ->maxSize(1024)
                             ->required(),
+                    ]),
+
+                Components\Section::make()
+                    ->hiddenOn('create')
+                    ->schema([
                         Components\FileUpload::make('images')
                             ->label('Imágenes')
-                            ->columnSpan(2)
                             ->panelLayout('grid')
                             ->directory(self::getWorkFolder())
                             ->required()
@@ -103,11 +116,12 @@ class WorkResource extends Resource
     {
         return $table
             ->defaultSort(fn (Builder $query) => $query
+                ->select('works.*', 'group_project.started_at', 'group_project.finished_at')
                 ->join('projects', 'works.project_id', '=', 'projects.id')
+                ->join('group_project', 'works.project_id', '=', 'group_project.project_id')
                 ->join('users', 'works.user_id', '=', 'users.id')
-                ->orderBy('projects.finished_at', 'desc')
+                ->orderBy('finished_at', 'desc')
                 ->orderBy('users.name')
-                ->select('works.*')
             )
             ->recordUrl(false)
             ->columns([
@@ -128,7 +142,7 @@ class WorkResource extends Resource
                     ->label('Estudiante')
                     ->searchable()
                     ->sortable(),
-                Columns\TextColumn::make('project.finished_at')
+                Columns\TextColumn::make('finished_at')
                     ->label('Entrega')
                     ->dateTime('M j, Y')
                     ->sortable(),
@@ -170,9 +184,9 @@ class WorkResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => \App\Filament\Admin\Resources\WorkResource\Pages\ListWorks::route('/'),
-            'edit' => \App\Filament\Admin\Resources\WorkResource\Pages\EditWork::route('/{record}/edit'),
-            'rubric' => \App\Filament\Admin\Resources\WorkResource\Pages\GradeWork::route('/{record}/rubric'),
+            'index' => WorkResource\Pages\ListWorks::route('/'),
+            'edit' => WorkResource\Pages\EditWork::route('/{record}/edit'),
+            'rubric' => WorkResource\Pages\GradeWork::route('/{record}/rubric'),
         ];
     }
 

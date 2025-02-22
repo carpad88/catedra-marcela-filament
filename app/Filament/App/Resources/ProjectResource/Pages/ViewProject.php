@@ -13,6 +13,6 @@ class ViewProject extends ViewRecord
 
     public function getRecord(): \Illuminate\Database\Eloquent\Model
     {
-        return parent::getRecord()->load('category');
+        return parent::getRecord()->load(['category', 'groups']);
     }
 }

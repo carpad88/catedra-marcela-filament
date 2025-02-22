@@ -39,6 +39,6 @@ class EditWork extends EditRecord
 
     protected function shouldAllowEdit(): bool
     {
-        return $this->record->project->finished_at > now();
+        return $this->record->finished > now();
     }
 }

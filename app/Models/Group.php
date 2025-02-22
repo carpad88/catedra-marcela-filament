@@ -39,7 +39,8 @@ class Group extends Model
 
     public function projects(): BelongsToMany
     {
-        return $this->belongsToMany(Project::class);
+        return $this->belongsToMany(Project::class)
+            ->withPivot('started_at', 'finished_at');
     }
 
     public function works(): HasMany

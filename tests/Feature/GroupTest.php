@@ -149,7 +149,7 @@ it('renders the users relation manager', function () {
 it('allows authorized users to attach a user to a group', function () {
     actingAsWithPermissions('group', ['view', 'update']);
 
-    $group = Group::factory()->hasProjects(2)->create(['status' => 'active']);
+    $group = Group::factory()->withProjects(2)->create(['status' => 'active']);
     $user = User::factory()->create();
 
     livewire(UsersRelationManager::class, [
@@ -185,7 +185,7 @@ it('renders the projects relation manager', function () {
     actingAsWithPermissions('group', ['view']);
 
     $group = Group::factory()
-        ->hasProjects(3, ['owner_id' => auth()->id()])
+        ->withProjects(3, ['owner_id' => auth()->id()])
         ->create(['owner_id' => auth()->id()]);
 
     livewire(ProjectsRelationManager::class, [
@@ -224,7 +224,7 @@ it('allows authorized users to remove a project from a group', function () {
     $group = Group::factory()->create();
     $project = Project::factory()->create();
 
-    $group->projects()->attach($project);
+    $group->projects()->attach($project, ['started_at' => now(), 'finished_at' => now()->addDays(30)]);
 
     livewire(ProjectsRelationManager::class, [
         'ownerRecord' => $group,
@@ -240,7 +240,7 @@ it('renders the works relation manager', function () {
     actingAsWithPermissions('group', ['view']);
 
     $group = Group::factory()
-        ->hasProjects(3)
+        ->withProjects(3)
         ->create(['owner_id' => auth()->id()]);
     $user = User::factory()->create();
 
@@ -261,7 +261,7 @@ it('allows authorized users to create works in the relation manager', function (
     actingAsWithPermissions('work', ['create']);
 
     $group = Group::factory()
-        ->hasProjects(1, ['owner_id' => auth()->id()])
+        ->withProjects(1, ['owner_id' => auth()->id()])
         ->create(['owner_id' => auth()->id(), 'status' => 'active']);
     $user = User::factory()->create();
 

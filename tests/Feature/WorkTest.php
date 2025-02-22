@@ -20,7 +20,7 @@ it('renders the works page and displays the correct columns and records', functi
         ->assertTableColumnExists('cover')
         ->assertTableColumnExists('project.title')
         ->assertTableColumnExists('user.name')
-        ->assertTableColumnExists('project.finished_at')
+        ->assertTableColumnExists('finished_at')
         ->assertCountTableRecords(2);
 
     test()->assertDatabaseCount(Work::class, 2);

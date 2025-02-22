@@ -18,8 +18,6 @@ class DuplicateProject
             'owner_id' => auth()->id(),
             'cover' => $record->cover,
             'title' => $record->title.' (Copia)',
-            'started_at' => now(),
-            'finished_at' => now()->addDays(10),
             'description' => $record->description,
             'goals' => $record->goals,
             'activities' => $record->activities,

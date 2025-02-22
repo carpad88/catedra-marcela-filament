@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\Status;
 use App\Traits\CrudBy;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -25,7 +26,8 @@ class Project extends Model
 
     public function groups(): BelongsToMany
     {
-        return $this->belongsToMany(Group::class);
+        return $this->belongsToMany(Group::class)
+            ->withPivot('started_at', 'finished_at');
     }
 
     public function criterias(): HasMany
@@ -55,5 +57,12 @@ class Project extends Model
     public function getFolderNameAttribute(): string
     {
         return str($this->title)->slug()->studly();
+    }
+
+    public function getFinishedAttribute(): ?Carbon
+    {
+        $finished = $this->groups->intersect(auth()->user()->groups)->first()?->pivot->finished_at;
+
+        return $finished ? Carbon::parse($finished) : now();
     }
 }

@@ -65,11 +65,11 @@ class WorksRelationManager extends RelationManager
     {
         return $table
             ->defaultSort(fn (Builder $query) => $query
-                ->join('projects', 'works.project_id', '=', 'projects.id')
-                ->join('users', 'works.user_id', '=', 'users.id')
-                ->orderBy('projects.finished_at', 'desc')
-                ->orderBy('users.name')
                 ->select('works.*')
+                ->join('users', 'works.user_id', '=', 'users.id')
+                ->join('projects', 'works.project_id', '=', 'projects.id')
+                ->orderBy('projects.title')
+                ->orderBy('users.name')
             )
             ->recordTitleAttribute('id')
             ->recordUrl(false)
@@ -86,10 +86,10 @@ class WorksRelationManager extends RelationManager
                     ->label('Estudiante')
                     ->searchable()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('project.started_at')
+                Tables\Columns\TextColumn::make('started')
                     ->label('Comienzo')
                     ->dateTime('M j, Y'),
-                Tables\Columns\TextColumn::make('project.finished_at')
+                Tables\Columns\TextColumn::make('finished')
                     ->label('Entrega')
                     ->dateTime('M j, Y'),
                 Tables\Columns\TextColumn::make('score')

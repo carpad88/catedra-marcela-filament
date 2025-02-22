@@ -18,6 +18,7 @@ class ListWorks extends ListRecords
     {
         return [
             Actions\CreateAction::make()
+                ->modalWidth('lg')
                 ->using(fn ($data) => static::getModel()::updateOrCreate(
                     [
                         'group_id' => $data['group_id'],

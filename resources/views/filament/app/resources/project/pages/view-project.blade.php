@@ -10,12 +10,15 @@
         <h1 class="font-display font-bold text-5xl text-center text-red-600">
             {{ $project->title }}
         </h1>
-        <p class="text-center mt-2 text-sm text-gray-600 font-light">
-            Fecha de entrega
-            <span class="font-semibold">
-                {{ $project->finished_at->locale('es')->isoFormat('D [de] MMMM [de] YYYY') }}
+
+        @if(auth()->user()->hasRole('student'))
+            <p class="text-center mt-2 text-sm text-gray-600 font-light">
+                Fecha de entrega
+                <span class="font-semibold">
+                {{ $project->finished->locale('es')->isoFormat('D [de] MMMM [de] YYYY') }}
             </span>
-        </p>
+            </p>
+        @endif
     </div>
 
     <div class="bg-gray-100">

@@ -14,6 +14,8 @@ return new class extends Migration
         Schema::create('group_project', function (Blueprint $table) {
             $table->foreignId('group_id')->constrained();
             $table->foreignId('project_id')->constrained();
+            $table->timestamp('started_at');
+            $table->timestamp('finished_at');
 
             $table->primary(['group_id', 'project_id']);
         });

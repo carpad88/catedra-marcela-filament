@@ -124,6 +124,6 @@ class GradeWork extends EditRecord
 
     protected function shouldAllowGrade(): bool
     {
-        return now() < $this->record->project->finished_at->addDays(3);
+        return now() < $this->record->finished->addDays(3);
     }
 }

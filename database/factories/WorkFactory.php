@@ -26,6 +26,8 @@ class WorkFactory extends Factory
         $group = Group::factory()->create();
         $user = User::factory()->create();
 
+        $project->groups()->attach($group, ['started_at' => now(), 'finished_at' => now()->addDays(15)]);
+
         $folder = "$group->folderName/$user->folderName/$project->folderName";
 
         return [

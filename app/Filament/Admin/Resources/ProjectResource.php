@@ -49,16 +49,6 @@ class ProjectResource extends Resource
                         Components\TextInput::make('title')
                             ->label('Título')
                             ->required(),
-                        Components\DatePicker::make('started_at')
-                            ->label('Comienzo')
-                            ->native(false)
-                            ->default(now())
-                            ->required(),
-                        Components\DatePicker::make('finished_at')
-                            ->label('Entrega')
-                            ->native(false)
-                            ->default(now()->addDays(10))
-                            ->required(),
                         Components\Select::make('category_id')
                             ->label('Categoría')
                             ->relationship('category', 'name')
@@ -134,31 +124,43 @@ class ProjectResource extends Resource
     {
         return $table
             ->modifyQueryUsing(fn ($query) => $query->owned())
-            ->defaultSort('started_at', 'desc')
+            ->defaultSort(fn ($query) => $query
+                ->orderBy('status')
+                ->orderBy(
+                    fn ($query) => $query->select('period')
+                        ->from('groups')
+                        ->join('group_project', 'groups.id', '=', 'group_project.group_id')
+                        ->whereColumn('group_project.project_id', 'projects.id')
+                        ->orderBy('period')
+                        ->limit(1), 'desc'
+                ))
             ->columns([
                 Columns\TextColumn::make('status')
                     ->label('Estado')
                     ->badge(Status::class),
                 Columns\TextColumn::make('title')
                     ->label('Título')
+                    ->sortable()
+                    ->searchable()
                     ->words(5)
                     ->tooltip(function (Columns\TextColumn $column): ?string {
                         $state = $column->getState();
 
                         return str_word_count($state) <= $column->getWordLimit() ? null : $state;
                     }),
-                Columns\TextColumn::make('started_at')
-                    ->label('Comienzo')
-                    ->dateTime('M j, Y'),
-                Columns\TextColumn::make('finished_at')
-                    ->label('Entrega')
-                    ->dateTime('M j, Y'),
+                Columns\TextColumn::make('criterias_count')
+                    ->counts('criterias')
+                    ->label('Criterios')
+                    ->tooltip('Criterios de evaluación')
+                    ->badge()
+                    ->alignCenter(),
                 Columns\TextColumn::make('groups.period')
                     ->default('--')
                     ->formatStateUsing(fn ($state) => explode(',', $state)[0])
                     ->label('Periodo')
                     ->badge()
-                    ->alignCenter(),
+                    ->alignCenter()
+                    ->sortable(),
                 Columns\TextColumn::make('groups_count')
                     ->label('Grupos')
                     ->counts('groups')
@@ -172,7 +174,12 @@ class ProjectResource extends Resource
                     ->sortable(),
             ])
             ->filters([
-                //
+                Tables\Filters\SelectFilter::make('category_id')
+                    ->label('Categoría')
+                    ->relationship('category', 'name')
+                    ->options(fn () => Tag::where('type', 'Proyectos')
+                        ->pluck('name', 'id')
+                    ),
             ])
             ->actions([
                 Tables\Actions\ActionGroup::make([

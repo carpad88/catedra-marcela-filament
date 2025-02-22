@@ -31,7 +31,7 @@ class WorkResource extends Resource
     public static function form(Form $form): Form
     {
         return $form
-            ->disabled(fn (Work $record) => $record->project->finished_at < now())
+            ->disabled(fn (Work $record) => $record->finished < now())
             ->schema([
                 Forms\Components\Section::make()
                     ->columns(3)
@@ -116,7 +116,7 @@ class WorkResource extends Resource
                     ->label('Agregar imágenes')
                     ->icon('phosphor-images-duotone')
                     ->visible(fn (Work $record) => auth()->user()->can('update_work')
-                        && now() < $record->project->finished_at->addDays(3)
+                        && now() < $record->finished->addDays(3)
                     ),
                 Tables\Actions\Action::make('rubric')
                     ->label('Rúbrica')
