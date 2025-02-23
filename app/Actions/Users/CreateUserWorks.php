@@ -10,6 +10,10 @@ class CreateUserWorks
 {
     public static function handle(Group|Model $group, User $user): void
     {
+        if (! $user->hasRole('student')) {
+            return;
+        }
+
         $group->projects->each(fn ($project) => $user->works()
             ->firstOrCreate([
                 'project_id' => $project->id,

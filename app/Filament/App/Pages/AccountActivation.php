@@ -105,8 +105,11 @@ class AccountActivation extends SimplePage
             ]);
 
             $user = auth()->user();
-            $group = $user->groups()->where('status', Status::Active)->first();
-            $createUserWorks->handle($group, $user);
+
+            if ($user->hasRole('student')) {
+                $group = $user->groups()->where('status', Status::Active)->first();
+                $createUserWorks->handle($group, $user);
+            }
 
             session()->regenerate();
 
