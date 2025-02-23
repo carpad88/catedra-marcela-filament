@@ -29,29 +29,33 @@ class ProjectResource extends Resource
     {
         $isStudent = auth()->user()->hasRole(['student']);
 
+        $addFinishedAtColumn = [
+            'finished_at' => \DB::table('group_project')
+                ->whereColumn('group_project.project_id', 'projects.id')
+                ->select('finished_at')
+                ->orderBy('finished_at', 'desc')
+                ->limit(1),
+        ];
+
         return $table
-            ->when($isStudent, function ($table) {
-                $table
-                    ->modifyQueryUsing(fn ($query) => $query
-                        ->whereHas('groups', function ($query) {
-                            $query->whereIn('id', auth()->user()->groups->pluck('id'));
-                        })
-                        ->join('group_project', 'projects.id', '=', 'group_project.project_id')
-                        ->select('projects.*', 'group_project.finished_at')
-                        ->orderBy('group_project.finished_at', 'desc')
-                        ->distinct('projects.id')
-                    );
-            })
-            ->when(! $isStudent, function ($table) {
-                $table
-                    ->modifyQueryUsing(fn ($query) => $query
-                        ->where('status', Status::Active)
-                        ->join('group_project', 'projects.id', '=', 'group_project.project_id')
-                        ->select('projects.*', 'group_project.finished_at')
-                        ->orderBy('group_project.finished_at', 'desc')
-                        ->distinct('projects.id')
-                    );
-            });
+            ->when($isStudent, fn ($table) => $table
+                ->modifyQueryUsing(fn ($query) => $query
+                    ->whereHas('groups', function ($query) {
+                        $query->whereIn('id', auth()->user()->groups->pluck('id'));
+                    })
+                    ->select('projects.*')
+                    ->addSelect($addFinishedAtColumn)
+                    ->orderBy('finished_at', 'desc')
+                )
+            )
+            ->when(! $isStudent, fn ($table) => $table
+                ->modifyQueryUsing(fn ($query) => $query
+                    ->where('status', Status::Active)
+                    ->select('projects.*')
+                    ->addSelect($addFinishedAtColumn)
+                    ->orderBy('finished_at', 'desc')
+                )
+            );
     }
 
     public static function getRelations(): array

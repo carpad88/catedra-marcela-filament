@@ -16,7 +16,7 @@
                             <div class="flex justify-between items-start">
                                 <div>
                                     <div class="text-xs uppercase font-extralight">Fecha de entrega</div>
-                                    <h3 class="font-medium">{{ $project->finished_at->locale('es')->isoFormat('D [de] MMMM, YYYY') }}</h3>
+                                    <h3 class="font-medium">{{ $project->finished->locale('es')->isoFormat('D [de] MMMM, YYYY') }}</h3>
                                 </div>
 
                                 <div class="flex items-center">
