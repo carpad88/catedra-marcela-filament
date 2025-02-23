@@ -18,6 +18,7 @@ class ActiveGroups extends BaseWidget
         return $table
             ->query(
                 GroupResource::getEloquentQuery()
+                    ->owned()
                     ->where('status', Status::Active)
                     ->withAvg('works', 'score')
                     ->withCount('works')
