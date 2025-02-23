@@ -16,6 +16,7 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns;
 use Filament\Tables\Table;
+use Storage;
 
 class ProjectResource extends Resource
 {
@@ -139,7 +140,7 @@ class ProjectResource extends Resource
                     ->label('Portada')
                     ->width(160)
                     ->height(100)
-                    ->defaultImageUrl(url('images/placeholder.svg')),
+                    ->defaultImageUrl(Storage::url('images/placeholder.svg')),
                 Columns\TextColumn::make('title')
                     ->label('Título')
                     ->sortable()

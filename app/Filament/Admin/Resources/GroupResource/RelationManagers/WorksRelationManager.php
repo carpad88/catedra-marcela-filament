@@ -14,6 +14,7 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Storage;
 
 class WorksRelationManager extends RelationManager
 {
@@ -77,7 +78,7 @@ class WorksRelationManager extends RelationManager
                 Tables\Columns\ImageColumn::make('cover')
                     ->label('Portada')
                     ->height(80)
-                    ->defaultImageUrl(url('images/placeholder.svg')),
+                    ->defaultImageUrl(Storage::url('images/placeholder.svg')),
                 Tables\Columns\TextColumn::make('project.title')
                     ->label('Proyecto')
                     ->searchable()

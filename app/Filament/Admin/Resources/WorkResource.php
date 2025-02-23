@@ -19,6 +19,7 @@ use Filament\Tables;
 use Filament\Tables\Columns;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Storage;
 
 class WorkResource extends Resource
 {
@@ -128,7 +129,7 @@ class WorkResource extends Resource
                 Columns\ImageColumn::make('cover')
                     ->label('Portada')
                     ->height(80)
-                    ->defaultImageUrl(url('images/placeholder.svg')),
+                    ->defaultImageUrl(Storage::url('images/placeholder.svg')),
                 Columns\TextColumn::make('group.title')
                     ->label('Grupo')
                     ->description(fn (Work $record) => $record->group->period, 'above')
