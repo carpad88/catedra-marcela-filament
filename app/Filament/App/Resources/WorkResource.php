@@ -23,7 +23,7 @@ class WorkResource extends Resource
 
     protected static ?string $navigationIcon = 'phosphor-images-duotone';
 
-    public static function canAccess(): bool
+    public static function shouldRegisterNavigation(): bool
     {
         return auth()->user()->hasRole('student');
     }
