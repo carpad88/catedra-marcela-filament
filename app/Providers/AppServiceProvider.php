@@ -57,7 +57,7 @@ class AppServiceProvider extends ServiceProvider
 
         PanelSwitch::configureUsing(function (PanelSwitch $panelSwitch) {
             $panelSwitch
-                ->visible(fn () => ! auth()->user()->hasRole('student'))
+                ->visible(fn () => auth()->user()->hasAnyRole(['teacher', 'super_admin']))
                 ->modalHeading('')
                 ->labels([
                     'admin' => 'Profesor',

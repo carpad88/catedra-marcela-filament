@@ -20,6 +20,7 @@ class ActiveProjects extends BaseWidget
         return $table
             ->query(
                 ProjectResource::getEloquentQuery()
+                    ->owned()
                     ->where('status', Status::Active)
                     ->with('groups')
                     ->withCount('works')
