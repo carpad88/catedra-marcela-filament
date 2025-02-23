@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use BezhanSalleh\PanelSwitch\PanelSwitch;
 use Filament\Forms;
 use Filament\Http\Responses\Auth\Contracts\LoginResponse;
 use Filament\Support\Facades\FilamentIcon;
@@ -50,7 +51,22 @@ class AppServiceProvider extends ServiceProvider
 
         FilamentView::registerRenderHook(
             PanelsRenderHook::SIDEBAR_FOOTER,
-            fn (): string => Blade::render("<div class='text-xs text-gray-400 p-2'>{{ app()->version() }} :: {{ \Composer\InstalledVersions::getPrettyVersion('filament/filament') }}</div>"),
+            fn (
+            ): string => Blade::render("<div class='text-xs text-gray-400 p-2'>{{ app()->version() }} :: {{ \Composer\InstalledVersions::getPrettyVersion('filament/filament') }}</div>"),
         );
+
+        PanelSwitch::configureUsing(function (PanelSwitch $panelSwitch) {
+            $panelSwitch
+                ->visible(fn () => ! auth()->user()->hasRole('student'))
+                ->modalHeading('')
+                ->labels([
+                    'admin' => 'Profesor',
+                    'app' => 'Estudiante',
+                ])
+                ->icons([
+                    'admin' => 'phosphor-chalkboard-teacher-thin',
+                    'app' => 'phosphor-student-thin',
+                ], $asImage = false);
+        });
     }
 }
