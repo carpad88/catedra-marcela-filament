@@ -1,8 +1,19 @@
 <?php
 
+use Filament\Facades\Filament;
 use Illuminate\Support\Facades\Route;
 
-Route::view('/', 'welcome')->name('welcome');
+Route::get('/', function () {
+    if (auth()->check()) {
+        if (auth()->user()->hasRole('student')) {
+            return redirect(Filament::getPanel('app')->getUrl());
+        }
+
+        return redirect(Filament::getPanel('admin')->getUrl());
+    }
+
+    return view('welcome');
+})->name('welcome');
 
 Route::redirect('/admin/login', '/app/login')->name('login');
 
