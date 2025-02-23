@@ -9,14 +9,16 @@ it('renders the projects page and displays only owned projects', function () {
     actingAsWithPermissions('project', ['view'], 'teacher');
 
     Project::factory(2)->create(); // Projects not owned by the authenticated user
-    $userProjects = Project::factory(2)->create(['owner_id' => auth()->id()]); // Owned projects
+    $userProjects = Project::factory(2)->create([
+        'owner_id' => auth()->id(),
+        'status' => 'active',
+    ]); // Owned projects
 
     test()->get(ProjectResource::getUrl())
         ->assertSuccessful();
 
     livewire(ProjectResource\Pages\ListProjects::class)
         ->assertTableColumnExists('title')
-        ->assertTableColumnExists('status')
         ->assertCountTableRecords(2)
         ->assertCanSeeTableRecords($userProjects);
 
@@ -35,12 +37,6 @@ it('prevents guests from accessing the admin projects page', function () {
     test()->get(ProjectResource::getUrl())
         ->assertRedirect('admin/login');
 });
-
-it('allows authorized users to view a project page', function () {})
-    ->skip('Not implemented');
-
-it('prevents unauthorized users from accessing the view project page', function () {})
-    ->skip('Not implemented');
 
 it('allows authorized users to create a new project', function () {
     actingAsWithPermissions('project', ['view', 'create'], 'teacher');
@@ -123,7 +119,10 @@ it('prevents unauthorized users from accessing the edit project page', function 
 it('allows authorized users to delete a project', function () {
     actingAsWithPermissions('project', ['view', 'delete']);
 
-    $project = Project::factory()->create(['owner_id' => auth()->id()]);
+    $project = Project::factory()->create([
+        'owner_id' => auth()->id(),
+        'status' => 'active',
+    ]);
 
     livewire(ProjectResource\Pages\ListProjects::class)
         ->assertTableActionExists('delete')
@@ -144,7 +143,10 @@ it('prevents unauthorized users from deleting a project', function () {
 it('allows authorized users to duplicate a project', function () {
     actingAsWithPermissions('project', ['view', 'create', 'replicate']);
 
-    $originalProject = Project::factory()->create(['owner_id' => auth()->id()]);
+    $originalProject = Project::factory()->create([
+        'owner_id' => auth()->id(),
+        'status' => 'active',
+    ]);
 
     livewire(ProjectResource\Pages\ListProjects::class)
         ->assertTableActionExists('replicate')

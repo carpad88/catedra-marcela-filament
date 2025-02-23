@@ -151,44 +151,6 @@ it('allows teachers to grade any work in their groups', function () {
         ->and($work->score)->toBe($work->scores->sum('level.score'));
 });
 
-it('allows users to update their own works', function () {
-    $user = actingAsWithPermissions('work', ['view', 'update'], 'student');
-
-    $work = Work::factory()->create(['user_id' => $user->id]);
-    $newWork = Work::factory()->make();
-
-    test()->get(WorkResource::getUrl('edit', ['record' => $work]))->assertSuccessful();
-
-    $undoRepeaterFake = Repeater::fake();
-
-    livewire(\App\Filament\Admin\Resources\WorkResource\Pages\EditWork::class, [
-        'record' => $work->getRouteKey(),
-    ])
-        ->assertFormSet([
-            'group_id' => $work->group_id,
-            'project_id' => $work->project_id,
-            'user_id' => $work->user_id,
-        ])
-        ->fillForm([
-            'cover' => [$newWork->cover],
-            'images' => $newWork->images,
-            'rubrics' => $work->project->criterias->map(fn ($rubric) => [
-                'id' => $rubric->id,
-                'title' => $rubric->title,
-                'order' => $rubric->order,
-                'level_id' => $rubric->levels->first()->id,
-            ])->toArray(),
-        ])
-        ->call('save')
-        ->assertHasNoFormErrors();
-
-    $undoRepeaterFake();
-
-    $work->refresh();
-    expect($work->cover)->toBe($newWork->cover)
-        ->and($work->images)->toBe($newWork->images);
-})->skip();
-
 it('prevents unauthorized users from accessing the edit project page', function () {
     actingAsWithPermissions('work', []);
 

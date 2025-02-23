@@ -150,7 +150,7 @@ it('allows authorized users to attach a user to a group', function () {
     actingAsWithPermissions('group', ['view', 'update']);
 
     $group = Group::factory()->withProjects(2)->create(['status' => 'active']);
-    $user = User::factory()->create();
+    $user = User::factory()->students()->create();
 
     livewire(UsersRelationManager::class, [
         'ownerRecord' => $group,
@@ -242,7 +242,7 @@ it('renders the works relation manager', function () {
     $group = Group::factory()
         ->withProjects(3)
         ->create(['owner_id' => auth()->id()]);
-    $user = User::factory()->create();
+    $user = User::factory()->students()->create();
 
     \App\Actions\Users\CreateUserWorks::handle($group, $user);
 

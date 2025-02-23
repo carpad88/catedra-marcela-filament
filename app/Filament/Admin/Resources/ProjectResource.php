@@ -135,9 +135,11 @@ class ProjectResource extends Resource
                         ->limit(1), 'desc'
                 ))
             ->columns([
-                Columns\TextColumn::make('status')
-                    ->label('Estado')
-                    ->badge(Status::class),
+                Columns\ImageColumn::make('cover')
+                    ->label('Portada')
+                    ->width(160)
+                    ->height(100)
+                    ->defaultImageUrl(url('images/placeholder.svg')),
                 Columns\TextColumn::make('title')
                     ->label('Título')
                     ->sortable()
@@ -176,6 +178,7 @@ class ProjectResource extends Resource
             ->filters([
                 Tables\Filters\SelectFilter::make('category_id')
                     ->label('Categoría')
+                    ->native(false)
                     ->relationship('category', 'name')
                     ->options(fn () => Tag::where('type', 'Proyectos')
                         ->pluck('name', 'id')

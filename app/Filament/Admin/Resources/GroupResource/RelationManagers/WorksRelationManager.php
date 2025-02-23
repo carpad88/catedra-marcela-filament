@@ -76,8 +76,8 @@ class WorksRelationManager extends RelationManager
             ->columns([
                 Tables\Columns\ImageColumn::make('cover')
                     ->label('Portada')
-                    ->height(100)
-                    ->defaultImageUrl(url('images/placeholder.png')),
+                    ->height(80)
+                    ->defaultImageUrl(url('images/placeholder.svg')),
                 Tables\Columns\TextColumn::make('project.title')
                     ->label('Proyecto')
                     ->searchable()

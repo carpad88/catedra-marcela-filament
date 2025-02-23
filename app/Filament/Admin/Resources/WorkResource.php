@@ -127,8 +127,8 @@ class WorkResource extends Resource
             ->columns([
                 Columns\ImageColumn::make('cover')
                     ->label('Portada')
-                    ->height(100)
-                    ->defaultImageUrl(url('images/placeholder.png')),
+                    ->height(80)
+                    ->defaultImageUrl(url('images/placeholder.svg')),
                 Columns\TextColumn::make('group.title')
                     ->label('Grupo')
                     ->description(fn (Work $record) => $record->group->period, 'above')

@@ -158,7 +158,7 @@ it('renders the works relation manager and displays the correct records', functi
     $group = Group::factory()
         ->withProjects(3)
         ->create(['owner_id' => auth()->id()]);
-    $user = User::factory()->create();
+    $user = User::factory()->students()->create();
     $user->groups()->attach($group);
 
     \App\Actions\Users\CreateUserWorks::handle($user->groups()->first(), $user);
