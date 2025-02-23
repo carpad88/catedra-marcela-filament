@@ -119,6 +119,9 @@ class WorkResource extends Resource
             ->defaultSort(fn (Builder $query) => $query
                 ->select('works.*', 'group_project.started_at', 'group_project.finished_at')
                 ->join('projects', 'works.project_id', '=', 'projects.id')
+                ->when(! auth()->user()->hasRole('super_admin'),
+                    fn ($query) => $query->where('projects.owner_id', auth()->id())
+                )
                 ->join('group_project', 'works.project_id', '=', 'group_project.project_id')
                 ->join('users', 'works.user_id', '=', 'users.id')
                 ->orderBy('finished_at', 'desc')
