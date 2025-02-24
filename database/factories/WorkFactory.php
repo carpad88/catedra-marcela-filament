@@ -22,7 +22,7 @@ class WorkFactory extends Factory
      */
     public function definition(): array
     {
-        $project = Project::factory()->hasCriterias(2)->create();
+        $project = Project::factory()->hasCriterias(2)->create(['owner_id' => auth()->id()]);
         $group = Group::factory()->create();
         $user = User::factory()->create();
 

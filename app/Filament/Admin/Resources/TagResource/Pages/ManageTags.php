@@ -36,6 +36,4 @@ class ManageTags extends ManageRecords
 
         return $tabs;
     }
-
-    public bool $grouping = false;
 }
