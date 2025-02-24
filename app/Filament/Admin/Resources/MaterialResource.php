@@ -2,8 +2,8 @@
 
 namespace App\Filament\Admin\Resources;
 
-use App\Filament\Admin\Resources\ResourceResource\Pages;
-use App\Models\Resource as ResourceModel;
+use App\Filament\Admin\Resources\MaterialResource\Pages;
+use App\Models\Material;
 use App\Models\Tag;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -12,9 +12,9 @@ use Filament\Tables;
 use Filament\Tables\Grouping\Group;
 use Filament\Tables\Table;
 
-class ResourceResource extends Resource
+class MaterialResource extends Resource
 {
-    protected static ?string $model = ResourceModel::class;
+    protected static ?string $model = Material::class;
 
     protected static ?string $navigationIcon = 'phosphor-books-duotone';
 
@@ -133,7 +133,7 @@ class ResourceResource extends Resource
                     ->label('Editorial')
                     ->visible(fn ($livewire) => $livewire->activeTab === 'books'),
                 Tables\Columns\IconColumn::make('data.link')
-                    ->url(fn (ResourceModel $record): string => $record->data['link'])
+                    ->url(fn (Material $record): string => $record->data['link'])
                     ->openUrlInNewTab()
                     ->label('Enlace')
                     ->visible(fn ($livewire) => $livewire->activeTab === 'digital')
@@ -178,7 +178,7 @@ class ResourceResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ManageResources::route('/'),
+            'index' => Pages\ManageMaterials::route('/'),
         ];
     }
 }

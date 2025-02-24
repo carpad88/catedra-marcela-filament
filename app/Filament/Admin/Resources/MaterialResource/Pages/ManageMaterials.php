@@ -1,16 +1,16 @@
 <?php
 
-namespace App\Filament\Admin\Resources\ResourceResource\Pages;
+namespace App\Filament\Admin\Resources\MaterialResource\Pages;
 
-use App\Filament\Admin\Resources\ResourceResource;
+use App\Filament\Admin\Resources\MaterialResource;
 use Filament\Actions;
 use Filament\Resources\Components\Tab;
 use Filament\Resources\Pages\ManageRecords;
 use Illuminate\Contracts\Support\Htmlable;
 
-class ManageResources extends ManageRecords
+class ManageMaterials extends ManageRecords
 {
-    protected static string $resource = ResourceResource::class;
+    protected static string $resource = MaterialResource::class;
 
     protected function getHeaderActions(): array
     {

@@ -2,11 +2,11 @@
 
 namespace App\Policies;
 
-use App\Models\Resource;
 use App\Models\User;
+use App\Models\Material;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
-class ResourcePolicy
+class MaterialPolicy
 {
     use HandlesAuthorization;
 
@@ -15,15 +15,15 @@ class ResourcePolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->can('view_any_resource');
+        return $user->can('view_any_material');
     }
 
     /**
      * Determine whether the user can view the model.
      */
-    public function view(User $user, Resource $resource): bool
+    public function view(User $user, Material $material): bool
     {
-        return $user->can('view_resource');
+        return $user->can('view_material');
     }
 
     /**
@@ -31,23 +31,23 @@ class ResourcePolicy
      */
     public function create(User $user): bool
     {
-        return $user->can('create_resource');
+        return $user->can('create_material');
     }
 
     /**
      * Determine whether the user can update the model.
      */
-    public function update(User $user, Resource $resource): bool
+    public function update(User $user, Material $material): bool
     {
-        return $user->can('update_resource');
+        return $user->can('update_material');
     }
 
     /**
      * Determine whether the user can delete the model.
      */
-    public function delete(User $user, Resource $resource): bool
+    public function delete(User $user, Material $material): bool
     {
-        return $user->can('delete_resource');
+        return $user->can('delete_material');
     }
 
     /**
@@ -55,13 +55,13 @@ class ResourcePolicy
      */
     public function deleteAny(User $user): bool
     {
-        return $user->can('delete_any_resource');
+        return $user->can('delete_any_material');
     }
 
     /**
      * Determine whether the user can permanently delete.
      */
-    public function forceDelete(User $user, Resource $resource): bool
+    public function forceDelete(User $user, Material $material): bool
     {
         return $user->can('{{ ForceDelete }}');
     }
@@ -77,7 +77,7 @@ class ResourcePolicy
     /**
      * Determine whether the user can restore.
      */
-    public function restore(User $user, Resource $resource): bool
+    public function restore(User $user, Material $material): bool
     {
         return $user->can('{{ Restore }}');
     }
@@ -93,9 +93,9 @@ class ResourcePolicy
     /**
      * Determine whether the user can replicate.
      */
-    public function replicate(User $user, Resource $resource): bool
+    public function replicate(User $user, Material $material): bool
     {
-        return $user->can('replicate_resource');
+        return $user->can('replicate_material');
     }
 
     /**
@@ -103,6 +103,6 @@ class ResourcePolicy
      */
     public function reorder(User $user): bool
     {
-        return $user->can('reorder_resource');
+        return $user->can('reorder_material');
     }
 }
