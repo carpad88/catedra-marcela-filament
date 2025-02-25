@@ -53,12 +53,7 @@ class TagResource extends Resource
             ])
             ->actions([
                 Tables\Actions\EditAction::make()
-                    ->modalWidth('sm')
-                    ->mutateFormDataUsing(function ($data) {
-                        $data['name']['es'] = str($data['name']['es'])->title();
-
-                        return $data;
-                    }),
+                    ->modalWidth('sm'),
                 Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([

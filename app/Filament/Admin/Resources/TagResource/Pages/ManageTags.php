@@ -16,12 +16,7 @@ class ManageTags extends ManageRecords
     {
         return [
             Actions\CreateAction::make()
-                ->modalWidth('sm')
-                ->mutateFormDataUsing(function ($data) {
-                    $data['name']['es'] = str($data['name']['es'])->title();
-
-                    return $data;
-                }),
+                ->modalWidth('sm'),
         ];
     }
 

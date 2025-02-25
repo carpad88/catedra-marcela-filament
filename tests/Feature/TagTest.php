@@ -48,7 +48,7 @@ it('allows authorized users to create a new tag', function () {
     $createdTag = Tag::findFromStringOfAnyType($newTagData['name']['es'])->first();
 
     expect($createdTag)->not->toBeNull()
-        ->and($createdTag->name)->toBe(str($newTagData['name']['es'])->title()->value())
+        ->and($createdTag->name)->toBe($newTagData['name']['es'])
         ->and($createdTag->type)->toBe($newTagData['type']);
 });
 

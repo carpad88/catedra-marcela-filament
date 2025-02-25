@@ -58,7 +58,7 @@ it('allows authorized users to create a new material', function () {
 
     expect($createdResource)->not->toBeNull()
         ->and($createdResource->title)->toBe($newResourceData['title'])
-        ->and($createdResource->author)->toBe($newResourceData['author']);
+        ->and($createdResource->author)->toBe(str($newResourceData['author'])->title()->value());
 });
 
 it('prevents unauthorized users from seeing the create action', function () {
