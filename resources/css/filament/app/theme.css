@@ -19,7 +19,7 @@
     height: 6rem !important;
 }
 
-.fi-main:has(> .catedra:first-child)  {
+.fi-main:has(> .catedra:first-child) {
     max-width: initial;
     margin: 0 !important;
     padding: 0;
@@ -57,5 +57,27 @@
         list-style: disc;
         margin-left: 3rem;
         margin-bottom: 1rem;
+    }
+}
+
+.post {
+    h2 {
+        @apply text-3xl text-left font-bold text-red-600 mt-20 mb-8;
+
+        &:first-child {
+            @apply mt-0;
+        }
+    }
+
+    h3 {
+        @apply text-2xl font-bold mt-8 mb-4;
+    }
+
+    h4 {
+        @apply text-lg font-semibold mb-4;
+    }
+
+    p > img {
+        width: 100%;
     }
 }

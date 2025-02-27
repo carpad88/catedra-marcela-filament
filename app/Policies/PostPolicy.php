@@ -2,11 +2,11 @@
 
 namespace App\Policies;
 
-use App\Models\Material;
+use App\Models\Post;
 use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
-class MaterialPolicy
+class PostPolicy
 {
     use HandlesAuthorization;
 
@@ -15,15 +15,15 @@ class MaterialPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->can('view_any_material');
+        return $user->can('view_any_post');
     }
 
     /**
      * Determine whether the user can view the model.
      */
-    public function view(User $user, Material $material): bool
+    public function view(User $user, Post $post): bool
     {
-        return $user->can('view_material');
+        return $user->can('view_post');
     }
 
     /**
@@ -31,23 +31,23 @@ class MaterialPolicy
      */
     public function create(User $user): bool
     {
-        return $user->can('create_material');
+        return $user->can('create_post');
     }
 
     /**
      * Determine whether the user can update the model.
      */
-    public function update(User $user, Material $material): bool
+    public function update(User $user, Post $post): bool
     {
-        return $user->can('update_material');
+        return $user->can('update_post');
     }
 
     /**
      * Determine whether the user can delete the model.
      */
-    public function delete(User $user, Material $material): bool
+    public function delete(User $user, Post $post): bool
     {
-        return $user->can('delete_material');
+        return $user->can('delete_post');
     }
 
     /**
@@ -55,13 +55,13 @@ class MaterialPolicy
      */
     public function deleteAny(User $user): bool
     {
-        return $user->can('delete_any_material');
+        return $user->can('delete_any_post');
     }
 
     /**
      * Determine whether the user can permanently delete.
      */
-    public function forceDelete(User $user, Material $material): bool
+    public function forceDelete(User $user, Post $post): bool
     {
         return $user->can('{{ ForceDelete }}');
     }
@@ -77,7 +77,7 @@ class MaterialPolicy
     /**
      * Determine whether the user can restore.
      */
-    public function restore(User $user, Material $material): bool
+    public function restore(User $user, Post $post): bool
     {
         return $user->can('{{ Restore }}');
     }
@@ -93,9 +93,9 @@ class MaterialPolicy
     /**
      * Determine whether the user can replicate.
      */
-    public function replicate(User $user, Material $material): bool
+    public function replicate(User $user, Post $post): bool
     {
-        return $user->can('replicate_material');
+        return $user->can('replicate_post');
     }
 
     /**
@@ -103,6 +103,6 @@ class MaterialPolicy
      */
     public function reorder(User $user): bool
     {
-        return $user->can('reorder_material');
+        return $user->can('reorder_post');
     }
 }

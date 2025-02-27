@@ -22,3 +22,10 @@
 .fi-sidebar-nav {
     @apply bg-white dark:bg-gray-900;
 }
+
+.editor-toolbar {
+    position: sticky;
+    z-index: 10;
+    background-color: white;
+    top: 0;
+}

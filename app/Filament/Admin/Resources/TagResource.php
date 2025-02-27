@@ -16,6 +16,8 @@ class TagResource extends Resource
 
     protected static ?string $navigationIcon = 'phosphor-tag-duotone';
 
+    protected static ?string $navigationGroup = 'Contenido';
+
     protected static ?int $navigationSort = 5;
 
     protected static ?string $label = 'Etiqueta';

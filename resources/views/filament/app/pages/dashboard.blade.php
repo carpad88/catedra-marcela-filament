@@ -26,7 +26,7 @@
     <div class="border-t border-b border-gray-300">
         <div class="container m-auto">
             <div class="flex">
-                <div class="px-20 w-1/3 sticky sticky h-full" style="top: 3rem;">
+                <div class="px-20 w-1/3 sticky h-full" style="top: 3rem;">
                     <h2 class="text-3xl font-bold text-red-600 my-20">Presentación</h2>
                 </div>
                 <div class="pl-12 py-20 w-1/2 font-light border-l border-gray-300 ">
