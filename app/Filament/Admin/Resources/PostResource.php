@@ -41,6 +41,7 @@ class PostResource extends Resource
                             ->required(),
                         Forms\Components\DatePicker::make('created_at')
                             ->label('Fecha de creación')
+                            ->native(false)
                             ->hiddenOn(['create'])
                             ->required(),
                         Forms\Components\FileUpload::make('cover')
