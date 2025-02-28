@@ -1,3 +1,42 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@font-face {
+    font-family: 'Literata';
+    font-weight: 200 900;
+    font-style: italic;
+}
+
+@keyframes __where {
+    0% {
+        box-shadow: inset 4px 4px #ff1e90, inset -4px -4px #ff1e90
+    }
+    100% {
+        box-shadow: inset 8px 8px #3399ff, inset -8px -8px #3399ff
+    }
+}
+
+.where, .\? {
+    animation: __where 0.5s ease-in-out alternate infinite;
+}
+
+.card {
+    @apply flex border border-gray-400 transition transform ease-in-out duration-300;
+}
+
+.card:hover {
+    @apply border-red-600 translate-x-5 z-10 text-red-600;
+}
+
+.card-title {
+    @apply w-1/2 p-4 font-display italic text-3xl;
+}
+
+.card-img {
+    @apply w-1/2 overflow-hidden flex justify-center items-center p-4;
+
+    img {
+        width: 100%;
+    }
+}

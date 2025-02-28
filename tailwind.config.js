@@ -14,6 +14,15 @@ export default {
             fontFamily: {
                 sans: ['Figtree', ...defaultTheme.fontFamily.sans],
             },
+            gridTemplateColumns: {
+                'main': 'repeat(8, 12vw)',
+            },
+            gridTemplateRows: {
+                'main': 'repeat(3, 12vw)',
+            },
+        },
+        fontFamily: {
+            'display': ['Literata'],
         },
     },
     plugins: [],
