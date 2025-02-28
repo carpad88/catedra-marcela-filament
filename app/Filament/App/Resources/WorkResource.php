@@ -21,7 +21,7 @@ class WorkResource extends Resource
 
     protected static ?string $label = 'Mis proyectos';
 
-    protected static ?string $navigationIcon = 'phosphor-images-duotone';
+    protected static ?string $navigationIcon = 'phosphor-pencil-line-duotone';
 
     public static function shouldRegisterNavigation(): bool
     {

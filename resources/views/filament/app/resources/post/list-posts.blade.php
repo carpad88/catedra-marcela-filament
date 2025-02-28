@@ -3,7 +3,6 @@
     @php
         setlocale(LC_TIME, 'es_ES.UTF-8');
         $posts = $this->table->getRecords();
-        $paginator = $this->table->paginated();
     @endphp
 
     <div class="pt-20 pb-24 bg-white border-b border-gray-300">

@@ -81,3 +81,14 @@
         width: 100%;
     }
 }
+
+.gallery {
+    > .fi-pagination-overview {
+        background-color: red;
+        display: none;
+    }
+
+    > .fi-pagination-items {
+        grid-column-start: 2;
+    }
+}
