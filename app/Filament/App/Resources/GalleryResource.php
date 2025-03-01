@@ -8,8 +8,6 @@ use App\Models\Tag;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables\Table;
-use Illuminate\Contracts\Support\Htmlable;
-use Illuminate\Database\Eloquent\Model;
 
 class GalleryResource extends Resource
 {
