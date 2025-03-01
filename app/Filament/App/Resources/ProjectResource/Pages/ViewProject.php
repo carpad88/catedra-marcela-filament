@@ -10,9 +10,4 @@ class ViewProject extends ViewRecord
     protected static string $resource = ProjectResource::class;
 
     protected static string $view = 'filament.app.resources.project.pages.view-project';
-
-    public function getRecord(): \Illuminate\Database\Eloquent\Model
-    {
-        return parent::getRecord()->load(['category', 'groups']);
-    }
 }

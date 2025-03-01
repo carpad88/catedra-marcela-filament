@@ -21,6 +21,8 @@ class GradeWork extends EditRecord
 
     protected array|Collection $criterias = [];
 
+    protected array $levelCache = [];
+
     protected function getHeaderActions(): array
     {
         return [
@@ -62,17 +64,31 @@ class GradeWork extends EditRecord
                         RadioDeck::make('level_id')
                             ->hiddenLabel()
                             ->required()
-                            ->options(fn ($get) => Level::where('criteria_id', $get('./')['id'])
-                                ->get()
-                                ->mapWithKeys(fn ($item) => [$item->id => "{$item->title} ({$item->score} pt)"])
-                            )
+                            ->options(function ($get) {
+                                $criteriaId = $get('./')['id'];
+                                if (! isset($this->levelCache[$criteriaId])) {
+                                    $this->levelCache[$criteriaId] = Level::where('criteria_id', $criteriaId)->get();
+                                }
+
+                                return $this->levelCache[$criteriaId]
+                                    ->mapWithKeys(fn ($item) => [
+                                        $item->id => "{$item->title} ({$item->score} pt)",
+                                    ]);
+                            })
+                            ->descriptions(function ($get) {
+                                $criteriaId = $get('./')['id'];
+                                if (! isset($this->levelCache[$criteriaId])) {
+                                    $this->levelCache[$criteriaId] = Level::where('criteria_id', $criteriaId)->get();
+                                }
+
+                                return $this->levelCache[$criteriaId]
+                                    ->mapWithKeys(fn ($item) => [
+                                        $item->id => $item->description,
+                                    ]);
+                            })
                             ->validationMessages([
                                 'required' => 'Selecciona un nivel de desempeño.',
                             ])
-                            ->descriptions(fn ($get) => Level::where('criteria_id', $get('./')['id'])
-                                ->get()
-                                ->mapWithKeys(fn ($item) => [$item->id => $item->description])
-                            )
                             ->extraCardsAttributes([
                                 'class' => 'flex-col justify-start items-start peer-checked:bg-primary-100',
                             ])

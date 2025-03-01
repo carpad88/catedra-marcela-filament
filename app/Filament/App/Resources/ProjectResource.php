@@ -7,6 +7,7 @@ use App\Filament\App\Resources\ProjectResource\Pages;
 use App\Models\Project;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 
 class ProjectResource extends Resource

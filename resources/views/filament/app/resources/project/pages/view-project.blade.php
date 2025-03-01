@@ -3,7 +3,7 @@
         setlocale(LC_ALL, 'es_ES');
         $project = $this->getRecord();
 
-        $randomWorks = \App\Models\Work::randomPublic(6, $project->category_id)->get();
+        $randomWorks = \App\Models\Work::with('group')->randomPublic(6, $project->category_id)->get();
     @endphp
 
     <div class="py-24 bg-white border-b border-gray-300">

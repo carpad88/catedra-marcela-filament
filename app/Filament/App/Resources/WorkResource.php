@@ -64,7 +64,9 @@ class WorkResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-            ->modifyQueryUsing(fn (Builder $query) => $query->where('user_id', auth()->user()->id))
+            ->modifyQueryUsing(fn (Builder $query) => $query->with('group')
+                ->where('user_id', auth()->user()->id)
+            )
             ->defaultGroup('group.period')
             ->recordUrl(null)
             ->groupingSettingsHidden()

@@ -27,7 +27,7 @@ class WorksRelationManager extends RelationManager
     public function table(Table $table): Table
     {
         return $table
-            ->modifyQueryUsing(fn ($query) => $query->where('visibility', Visibility::Public))
+            ->modifyQueryUsing(fn ($query) => $query->with(['user', 'group'])->where('visibility', Visibility::Public))
             ->defaultSort('created_at', 'desc')
             ->recordTitleAttribute('id');
     }

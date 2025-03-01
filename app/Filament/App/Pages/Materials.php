@@ -34,7 +34,7 @@ class Materials extends \Filament\Pages\Dashboard
     {
         $this->selectedCategory = $category ?? $this->categories->first()->id;
 
-        $this->items = Material::where('category_id', $this->selectedCategory)->get();
+        $this->items = Material::with('category')->where('category_id', $this->selectedCategory)->get();
     }
 
     protected function fetchCategories(): void

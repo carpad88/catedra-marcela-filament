@@ -26,7 +26,7 @@ class PostResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-            ->modifyQueryUsing(fn ($query) => $query->latest())
+            ->modifyQueryUsing(fn ($query) => $query->with('creator')->latest())
             ->defaultPaginationPageOption(5);
     }
 
